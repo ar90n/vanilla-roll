@@ -1,0 +1,53 @@
+[tool.poetry]
+name = "vanilla-roll"
+version = "0.1.0"
+description = ""
+authors = ["Masahiro Wada <argon.argon.argon@gmail.com>"]
+license = "Apache-2.0"
+include = ["alfort_dom/py.typed"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.dev-dependencies]
+poethepoet = "^0.13.1"
+pyright = "^1.1.238"
+pytest = "^7.1.1"
+pytest-cov = "^3.0.0"
+pytest-xdist = "^2.5.0"
+pytest-black = "^0.3.12"
+pre-commit = "^2.18.1"
+conventional-commit = "^0.4.2"
+isort = "^5.10.1"
+flake8 = "^4.0.1"
+commitizen = "^2.27.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+
+[tool.pyright]
+include = ["vanilla_roll", "tests"]
+stubPath ="stubs"
+typeCheckingMode = "strict"
+reportMissingImports = false
+reportMissingTypeStubs = false
+pythonVersion = "3.10"
+pythonPlatform = "Linux"
+
+[tool.pytest.ini_options]
+addopts = "--strict --durations=0 --color=yes"
+testpaths = [
+    "tests"
+]
+
+[tool.poetry-version-plugin]
+source = "git-tag"
+
+[tool.poe.tasks]
+test = "pytest"
+check = { shell = "pre-commit run -a && pyright" }
+install-pre-commit = "pre-commit install"
