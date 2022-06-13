@@ -10,6 +10,9 @@ include = ["alfort_dom/py.typed"]
 python = "~3.10"
 numpy = "^1.22.4"
 numba = "^0.55.2"
+scipy = "^1.8.1"
+scikit-spatial = "^6.4.0"
+pydantic = "^1.9.1"
 
 [tool.poetry.group.dev.dependencies]
 joblib = "^1.1.0"
