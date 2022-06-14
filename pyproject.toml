@@ -14,6 +14,7 @@ scipy = "^1.8.1"
 scikit-spatial = "^6.4.0"
 pydantic = "^1.9.1"
 metaimageio = "^1.0.0"
+torch = "^1.8.*"
 
 [tool.poetry.group.dev.dependencies]
 joblib = "^1.1.0"
@@ -29,6 +30,11 @@ isort = "^5.10.1"
 flake8 = "^4.0.1"
 commitizen = "^2.27.0"
 ipykernel = "^6.13.0"
+
+[[tool.poetry.source]]
+name = "torch"
+url = "https://download.pytorch.org/whl/cpu"
+secondary = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
