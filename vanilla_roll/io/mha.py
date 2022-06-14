@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Any, cast
 
-import metaimageio
+import metaimageio  # type: ignore
 import numpy as np
 import numpy.typing as npt
 
@@ -54,7 +54,6 @@ def _get_orientation_from_mha_meta(meta: dict[str, Any]) -> Orientation:
 
 
 def read_mha(path: str | Path) -> Volume:
-
     np_array_data, meta = cast(
         tuple[npt.NDArray[Any], dict[str, Any]], metaimageio.read(path)
     )
