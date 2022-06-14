@@ -16,6 +16,7 @@ elif get_array_api_backend() == ArrayApiBackend.PYTORCH:
         bool,
         float32,
         float64,
+        from_dlpack,
         int8,
         int16,
         int32,

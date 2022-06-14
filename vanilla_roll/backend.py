@@ -1,19 +1,12 @@
 import os
 from enum import Enum
-from importlib import import_module
+
+from vanilla_roll.util import has_module
 
 
 class ArrayApiBackend(Enum):
     NUMPY = "numpy"
     PYTORCH = "pytorch"
-
-
-def has_module(module_name: str) -> bool:
-    try:
-        import_module(module_name)
-        return True
-    except ModuleNotFoundError:
-        return False
 
 
 def has_backend(backend_name: str) -> bool:

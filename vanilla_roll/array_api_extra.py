@@ -155,4 +155,12 @@ else:
     raise OSError("No array API backend found")
 
 
-__all__ = ["take", "put", "assign", "clip", "sample", "ravel_index", "diag"]
+__all__ = [
+    "take",
+    "put",
+    "assign",
+    "clip",
+    "sample",
+    "ravel_index",
+    "diag",
+]

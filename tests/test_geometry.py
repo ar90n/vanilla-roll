@@ -166,7 +166,7 @@ def test_direction_to_array(
     x: float, y: float, z: float, nx: float, ny: float, nz: float, helpers: Any
 ):
     direction = Direction(x, y, z).to_array()
-    assert xp.all(direction == xp.asarray([nz, ny, nx]))
+    assert helpers.approx_equal(direction, xp.asarray([nz, ny, nx]))
     assert helpers.approx_equal(direction, Direction.of_array(direction).to_array())
 
 

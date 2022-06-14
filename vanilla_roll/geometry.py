@@ -32,10 +32,10 @@ class Spacing:
         return cls(i=i, j=j, k=k)
 
     def to_array(self) -> xp.Array:
-        return xp.asarray([self.k, self.j, self.i])
+        return xp.asarray([self.k, self.j, self.i], dtype=xp.float32)
 
     def to_homogeneous(self) -> xp.Array:
-        return xp.asarray([self.k, self.j, self.i, 1.0])
+        return xp.asarray([self.k, self.j, self.i, 1.0], dtype=xp.float32)
 
 
 @dataclass(frozen=True)
@@ -68,10 +68,10 @@ class Vector:
         return cls(x=x, y=y, z=z)
 
     def to_array(self) -> xp.Array:
-        return xp.asarray([self.z, self.y, self.x])
+        return xp.asarray([self.z, self.y, self.x], dtype=xp.float32)
 
     def to_homogeneous(self) -> xp.Array:
-        return xp.asarray([self.z, self.y, self.x, 1.0])
+        return xp.asarray([self.z, self.y, self.x, 1.0], dtype=xp.float32)
 
 
 @dataclass(frozen=True)
@@ -124,10 +124,10 @@ class Point:
         return cls(x=x, y=y, z=z)
 
     def to_array(self) -> xp.Array:
-        return xp.asarray([self.z, self.y, self.x])
+        return xp.asarray([self.z, self.y, self.x], dtype=xp.float32)
 
     def to_homogeneous(self) -> xp.Array:
-        return xp.asarray([self.z, self.y, self.x, 1.0])
+        return xp.asarray([self.z, self.y, self.x, 1.0], dtype=xp.float32)
 
 
 Primitive = Point | Vector | Direction | Spacing
