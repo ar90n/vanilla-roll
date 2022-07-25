@@ -48,6 +48,7 @@ def sample_linear(array: xp.Array, /, *, coordinates: xp.Array) -> xp.Array:
     diff = coordinates - xp.astype(org, xp.float64)
     shape = array.shape
 
+
     for s in itertools.product(*([[0, 1]] * org.shape[-1])):
         step = xp.asarray(s)
         cur = org + step

@@ -6,12 +6,12 @@ import pytest
 
 import vanilla_roll.array_api as xp
 from vanilla_roll.geometry import (
-    CoordinateSystem,
+    Frame,
     Direction,
     Orientation,
     Point,
     Spacing,
-    Transform,
+    Transformation,
     Vector,
 )
 
@@ -291,7 +291,7 @@ def test_transform(
     expected: Any,
     helpers: Any,
 ):
-    src_coordinate_system = CoordinateSystem(
+    src_coordinate_system = Frame(
         origin=Point(*src_origin),
         orientation=Orientation(
             i=Direction(*src_orientation[0]),
@@ -300,7 +300,7 @@ def test_transform(
         ),
         spacing=Spacing(*src_spacing),
     )
-    dst_coordinate_system = CoordinateSystem(
+    dst_coordinate_system = Frame(
         origin=Point(*dst_origin),
         orientation=Orientation(
             i=Direction(*dst_orientation[0]),
@@ -309,7 +309,7 @@ def test_transform(
         ),
         spacing=Spacing(*dst_spacing),
     )
-    transform = Transform.of(src_coordinate_system, dst_coordinate_system)
+    transform = Transformation.of(src_coordinate_system, dst_coordinate_system)
 
     actual = transform.apply(xp.asarray(src_coordinates).T).T
     expected = xp.asarray(expected)

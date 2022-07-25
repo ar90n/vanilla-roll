@@ -10,6 +10,7 @@ elif get_array_api_backend() == ArrayApiBackend.NUMPY:
     from numpy.array_api import *  # noqa: F403
     from numpy.array_api._array_object import Array  # pyright: reportUnusedImport=false
 elif get_array_api_backend() == ArrayApiBackend.PYTORCH:
+    import torch
     import torch.linalg as linalg  # noqa: F401
     from torch import *  # noqa: F403
     from torch import (  # noqa: F401
@@ -25,6 +26,16 @@ elif get_array_api_backend() == ArrayApiBackend.PYTORCH:
     )
 
     Array = Tensor  # noqa: F405
+
+    def max(
+        array: Array, /, *, axis: int | None = None, keepdims: bool = False
+    ) -> Array:
+        return torch.max(array, axis=axis, keepdims=keepdims)[0]
+
+    def min(
+        array: Array, /, *, axis: int | None = None, keepdims: bool = False
+    ) -> Array:
+        return torch.min(array, axis=axis, keepdims=keepdims)[0]
 
     def astype(array: Array, /, _dtype: dtype) -> Array:  # noqa: F405
         return array.to(_dtype)

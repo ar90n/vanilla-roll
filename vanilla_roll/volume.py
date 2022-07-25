@@ -2,14 +2,14 @@ from dataclasses import dataclass
 from typing import NoReturn
 
 import vanilla_roll.array_api as xp
-from vanilla_roll.geometry import CoordinateSystem
+from vanilla_roll.geometry.element import Frame
 
 
 @dataclass(frozen=True)
 class Volume:
 
     data: xp.Array
-    coordinate_system: CoordinateSystem
+    frame: Frame
 
     def __post_init__(self) -> None | NoReturn:
         if self.data.ndim != 3:

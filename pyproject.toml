@@ -8,13 +8,14 @@ include = ["alfort_dom/py.typed"]
 
 [tool.poetry.dependencies]
 python = "~3.10"
-numpy = "^1.22.4"
+numpy = "^1.23.*"
 numba = "^0.55.2"
 scipy = "^1.8.1"
 scikit-spatial = "^6.4.0"
 pydantic = "^1.9.1"
 metaimageio = "^1.0.0"
 torch = "^1.8.*"
+nibabel = "^3.2.2"
 
 [tool.poetry.group.dev.dependencies]
 joblib = "^1.1.0"
