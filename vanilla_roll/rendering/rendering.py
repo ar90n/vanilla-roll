@@ -1,18 +1,18 @@
 from typing import Callable
 
 import vanilla_roll.array_api_extra as xpe
-from vanilla_roll.volume import Volume
-from vanilla_roll.rendering.projection import Projection, Orthogoal
-from vanilla_roll.rendering.mode import Mode, MinP, MIP, Average
-from vanilla_roll.rendering.algorithm import Algorithm, ShearWarp, Raycast
-from vanilla_roll.rendering.types import Renderer
-from vanilla_roll.rendering.accumulation import Accumulator, AccMax, AccMin, AccMean
+from vanilla_roll.rendering.accumulation import AccMax, AccMean, AccMin, Accumulator
+from vanilla_roll.rendering.algorithm import Algorithm, Raycast, ShearWarp
+from vanilla_roll.rendering.mode import MIP, Average, MinP, Mode
 from vanilla_roll.rendering.orthogonal_raycast import (
     create_renderer as create_orthogonal_raycast,
 )
 from vanilla_roll.rendering.orthogonal_shear_warp import (
     create_renderer as create_orthogonal_shear_warp,
 )
+from vanilla_roll.rendering.projection import Orthogoal, Projection
+from vanilla_roll.rendering.types import Renderer
+from vanilla_roll.volume import Volume
 
 
 def _get_accumulator_constructor(

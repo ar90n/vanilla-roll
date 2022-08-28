@@ -4,16 +4,12 @@ from typing import Callable
 import vanilla_roll.array_api as xp
 import vanilla_roll.array_api_extra as xpe
 from vanilla_roll.camera import Camera
-from vanilla_roll.geometry.element import (
-    Vector,
-    world_frame,
-    as_array,
-)
-from vanilla_roll.geometry.linalg import normalize_vector
 from vanilla_roll.geometry.conversion import Transformation
-from vanilla_roll.volume import Volume
-from vanilla_roll.rendering.types import RenderingResult, Renderer
+from vanilla_roll.geometry.element import Vector, as_array, world_frame
+from vanilla_roll.geometry.linalg import normalize_vector
 from vanilla_roll.rendering.accumulation import Accumulator
+from vanilla_roll.rendering.types import Renderer, RenderingResult
+from vanilla_roll.volume import Volume
 
 
 def _direciton_aligned_linspace(

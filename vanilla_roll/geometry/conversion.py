@@ -65,7 +65,7 @@ def _transform_frame(
     )
 
 
-def _transofrm_array(
+def _transoform_array(
     target: xp.Array, src_frame_mat: xp.Array, dst_frame_mat: xp.Array
 ) -> xp.Array:
     org_shape = target.shape
@@ -73,15 +73,40 @@ def _transofrm_array(
         target = xp.reshape(target, (3, 1))
     if target.ndim != 2 or target.shape[0] != 3:
         raise ValueError("Target array must be a 3xN matrix.")
-    if target.dtype != xp.float64:
-        target = xp.astype(target, xp.float64)
+    if src_frame_mat.dtype != target.dtype:
+        src_frame_mat = xp.astype(src_frame_mat, target.dtype)
+    if dst_frame_mat.dtype != target.dtype:
+        dst_frame_mat = xp.astype(dst_frame_mat, target.dtype)
 
     homogeneous_target = to_homogeneous(target)
     result = xp.linalg.solve(dst_frame_mat, src_frame_mat @ homogeneous_target)[:3, :]
+
     return xp.reshape(result, org_shape)
 
 
 class Transformation(Conversion):
+    """Create a transformation from src frame to dst frame.
+
+    >>> src = Frame(\
+            Vector(1.0, 2.0, 3.0),\
+            Orientation(Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0))\
+        )
+    >>> dst = Frame(\
+            Vector(2.0, 1.0, 0.5),\
+            Orientation(Vector(0.5, 0.5, 0.0), Vector(-0.5, 0.5, 0.0), Vector(0.0, 0.0, 1.0))\
+        )
+    >>> transform = Transformation(src, dst)
+    >>> transform(Vector(1.0, 2.0, 3.0))
+    Vector(i=3.0, j=3.0, k=5.5)
+    >>> transform(Orientation(Vector(1.0, 0.0, 0.0), Vector(0.0, -0.5, 0.5), Vector(0.0, 0.5, 0.5)))
+    Orientation(i=Vector(i=1.0, j=-1.0, k=0.0), j=Vector(i=-0.5, j=-0.5, k=0.5), k=Vector(i=0.5, j=0.5, k=0.5))
+    >>> transform(Frame(\
+            Vector(1.0, 2.0, 3.0),\
+            Orientation(Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0))\
+        ))
+    Frame(origin=Vector(i=3.0, j=3.0, k=5.5), orientation=Orientation(i=Vector(i=1.0, j=-1.0, k=0.0), j=Vector(i=1.0, j=1.0, k=0.0), k=Vector(i=0.0, j=0.0, k=1.0)))
+    """  # noqa: E501
+
     _src_frame_mat: xp.Array
     _dst_frame_mat: xp.Array
 
@@ -120,14 +145,14 @@ class Transformation(Conversion):
                     target, self._src_frame_mat, self._dst_frame_mat
                 )
             case xp.Array():
-                return _transofrm_array(
+                return _transoform_array(
                     target, self._src_frame_mat, self._dst_frame_mat
                 )
         raise ValueError(f"Unknown data type: {type(target)}")
 
 
 def _permutate_vector(target: Vector, order: tuple[int, int, int]) -> Vector:
-    k, j, i = ["kji"[i] for i in order]
+    k, j, i = ("kji"[i] for i in order)
     return Vector(
         i=getattr(target, i),
         j=getattr(target, j),
@@ -161,6 +186,17 @@ def _permutate_array(target: xp.Array, order: tuple[int, int, int]) -> xp.Array:
 
 
 class Permutation(Conversion):
+    """Create a permutation of given order.
+
+    >>> perm = Permutation((1, 2, 0))
+    >>> perm(Vector(1.0, 2.0, 3.0))
+    Vector(i=3.0, j=1.0, k=2.0)
+    >>> perm(Orientation(Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0)))
+    Orientation(i=Vector(i=0.0, j=1.0, k=0.0), j=Vector(i=0.0, j=0.0, k=1.0), k=Vector(i=1.0, j=0.0, k=0.0))
+    >>> perm(Frame(Vector(1.0, 2.0, 3.0), Orientation(Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0))))
+    Frame(origin=Vector(i=3.0, j=1.0, k=2.0), orientation=Orientation(i=Vector(i=0.0, j=1.0, k=0.0), j=Vector(i=0.0, j=0.0, k=1.0), k=Vector(i=1.0, j=0.0, k=0.0)))
+    """  # noqa: E501
+
     _order: tuple[int, int, int]
 
     def __init__(self, order: tuple[int, int, int]) -> None:
@@ -197,50 +233,6 @@ class Permutation(Conversion):
     @property
     def order(self) -> tuple[int, int, int]:
         return self._order
-
-
-# def create_transform(src: Frame, dst: Frame):
-#    """Create a transformation from src frame to dst frame.
-#
-#    >>> src = Frame(Vector(1.0, 2.0, 3.0), Orientation(Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0)))
-#    >>> dst = Frame(Vector(2.0, 1.0, 0.5), Orientation(Vector(0.5, 0.5, 0.0), Vector(-0.5, 0.5, 0.0), Vector(0.0, 0.0, 1.0)))
-#    >>> transform = create_transform(src, dst)
-#    >>> transform(Vector(1.0, 2.0, 3.0))
-#    Vector(i=3.0, j=3.0, k=5.5)
-#    >>> transform(Orientation(Vector(1.0, 0.0, 0.0), Vector(0.0, -0.5, 0.5), Vector(0.0, 0.5, 0.5)))
-#    Orientation(i=Vector(i=1.0, j=-1.0, k=0.0), j=Vector(i=-0.5, j=-0.5, k=0.5), k=Vector(i=0.5, j=0.5, k=0.5))
-#    >>> transform(Frame(Vector(1.0, 2.0, 3.0), Orientation(Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0))))
-#    Frame(origin=Vector(i=3.0, j=3.0, k=5.5), orientation=Orientation(i=Vector(i=1.0, j=-1.0, k=0.0), j=Vector(i=1.0, j=1.0, k=0.0), k=Vector(i=0.0, j=0.0, k=1.0)))
-#    """
-#
-#    def _transform(target: T) -> T:
-#        src_frame_mat = _as_array_from_frame(src)
-#        dst_frame_mat = _as_array_from_frame(dst)
-#        match target:
-#            case Vector():
-#                return _transform_vector(target, src_frame_mat, dst_frame_mat)
-#            case Orientation():
-#                return _transform_orientation(target, src_frame_mat, dst_frame_mat)
-#            case Frame():
-#                return _transform_frame(target, src_frame_mat, dst_frame_mat)
-#            case xp.Array():
-#                return _transofrm_array(target, src_frame_mat, dst_frame_mat)
-#        raise ValueError(f"Unknown data type: {type(target)}")
-#
-#    return _transform
-
-
-# def create_permutation(order: tuple[int, int, int]):
-#    """Create a permutation of given order.
-#
-#    >>> permutation = create_permutation((1, 2, 0))
-#    >>> permutation(Vector(1.0, 2.0, 3.0))
-#    Vector(i=2.0, j=3.0, k=1.0)
-#    >>> permutation(Orientation(Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0)))
-#    Orientation(i=Vector(i=0.0, j=0.0, k=1.0), j=Vector(i=1.0, j=0.0, k=0.0), k=Vector(i=0.0, j=1.0, k=0.0))
-#    >>> permutation(Frame(Vector(1.0, 2.0, 3.0), Orientation(Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0))))
-#    Frame(origin=Vector(i=2.0, j=3.0, k=1.0), orientation=Orientation(i=Vector(i=0.0, j=0.0, k=1.0), j=Vector(i=1.0, j=0.0, k=0.0), k=Vector(i=0.0, j=1.0, k=0.0)))
-#    """
 
 
 class Composition(Conversion):

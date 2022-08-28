@@ -5,23 +5,23 @@ import vanilla_roll.array_api as xp
 import vanilla_roll.array_api_extra as xpe
 import vanilla_roll.array_api_image as xpi
 from vanilla_roll.camera import Camera
-from vanilla_roll.volume import Volume
-from vanilla_roll.geometry.element import (
-    Frame,
-    Vector,
-    Orientation,
-    world_frame,
-    as_array,
-)
-from vanilla_roll.geometry.linalg import normalize_vector, norm
 from vanilla_roll.geometry.conversion import (
-    Conversion,
     Composition,
+    Conversion,
     Permutation,
     Transformation,
 )
-from vanilla_roll.rendering.types import RenderingResult, Renderer
+from vanilla_roll.geometry.element import (
+    Frame,
+    Orientation,
+    Vector,
+    as_array,
+    world_frame,
+)
+from vanilla_roll.geometry.linalg import norm, normalize_vector
 from vanilla_roll.rendering.accumulation import Accumulator, Slice2d
+from vanilla_roll.rendering.types import Renderer, RenderingResult
+from vanilla_roll.volume import Volume
 
 
 def _create_transformation(
@@ -61,14 +61,14 @@ def _create_permutation_from_principal_axis(
 
 
 def _permute_volume(target: Volume, order: tuple[int, int, int]) -> Volume:
-    k, j, i = [
+    k, j, i = (
         [
             target.frame.orientation.k,
             target.frame.orientation.j,
             target.frame.orientation.i,
         ][i]
         for i in order
-    ]
+    )
     return Volume(
         data=xp.permute_dims(target.data, order),
         frame=Frame(
@@ -193,14 +193,16 @@ def _calc_warp_matrix(
             [dst_shape[0] / src_shape[0], 0, dst_shape[0] / 2],
             [0, dst_shape[1] / src_shape[1], dst_shape[1] / 2],
             [0, 0, 1],
-        ]
+        ],
+        dtype=view_mat.dtype,
     )
     translate_mat = xp.asarray(
         [
             [1, 0, -translation.j],
             [0, 1, -translation.i],
             [0, 0, 1],
-        ]
+        ],
+        dtype=view_mat.dtype,
     )
     warp_mat = align_mat @ view_mat[1:, 1:] @ translate_mat
     return warp_mat

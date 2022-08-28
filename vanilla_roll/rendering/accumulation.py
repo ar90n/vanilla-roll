@@ -1,8 +1,8 @@
-from typing import Protocol
 from dataclasses import dataclass
+from typing import Protocol
 
-import vanilla_roll.array_api_extra as xpe
 import vanilla_roll.array_api as xp
+import vanilla_roll.array_api_extra as xpe
 
 
 @dataclass(frozen=True)

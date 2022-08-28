@@ -1,9 +1,9 @@
-from typing import Callable, TypeAlias
 from dataclasses import dataclass
+from typing import Callable, TypeAlias
 
 import vanilla_roll.array_api as xp
 from vanilla_roll.camera import Camera
-from vanilla_roll.geometry.element import Vector, Orientation
+from vanilla_roll.geometry.element import Orientation, Vector
 
 
 @dataclass(frozen=True)

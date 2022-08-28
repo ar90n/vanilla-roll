@@ -8,7 +8,7 @@ import numpy as np
 import numpy.typing as npt
 
 import vanilla_roll.array_api as xp
-from vanilla_roll.geometry.element import Frame, Vector, Orientation, as_array
+from vanilla_roll.geometry.element import Frame, Orientation, Vector, as_array
 from vanilla_roll.volume import Volume
 
 

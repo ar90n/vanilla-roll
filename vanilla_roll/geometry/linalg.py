@@ -8,8 +8,8 @@ def norm(vector: Vector) -> float:
 def normalize_vector(vector: Vector) -> Vector:
     """Normalize a vector.
 
-    >>> normalize_vector(Vector(1.0, 2.0, 2.0))
-    Vector(i=0.17677669529663687, j=0.35355339059327373, k=0.5303300858899106)
+    >>> normalize_vector(Vector(1.0, 2.0, 3.0)) # doctest: +ELLIPSIS
+    Vector(i=0.26726..., j=0.53452..., k=0.80178...)
     """
     length = (vector.i**2 + vector.j**2 + vector.k**2) ** 0.5
     return Vector(

@@ -1,119 +1,87 @@
 # pyright: reportUnknownMemberType=false
-from typing import Any
-
 import pytest
 
-from vanilla_roll.camera import Camera, Screen
-from vanilla_roll.geometry import Direction, Orientation, Point
+import vanilla_roll.array_api as xp
+from vanilla_roll.camera import Camera, ViewVolume
+from vanilla_roll.geometry.element import Frame, Orientation, Vector, as_array
+from vanilla_roll.geometry.linalg import normalize_vector
+
+
+def _calc_orientation(forward: Vector, up: Vector) -> Orientation:
+    j = Vector.of_array(-as_array(normalize_vector(up)))
+    k = normalize_vector(forward)
+    i = Vector.of_array(xp.linalg.cross(as_array(k), as_array(j)))
+    return Orientation(i=i, j=j, k=k)
 
 
 @pytest.mark.usefixtures("array_api_backend")
 @pytest.mark.parametrize(
-    "position, forward, up, screen, expected",
+    "position, forward, up, view_volume, expected",
     [
         (
-            Point(x=0.0, y=0.0, z=0.0),
-            Direction(x=0.0, y=0.0, z=1.0),
-            Direction(x=0.0, y=-1.0, z=0.0),
-            Screen(width=32.0, height=32.0, distance=1.0),
-            Point(x=-16.0, y=-16.0, z=1.0),
+            Vector(i=0.0, j=0.0, k=0.0),
+            Vector(i=0.0, j=0.0, k=1.0),
+            Vector(i=0.0, j=-1.0, k=0.0),
+            ViewVolume(width=32.0, height=32.0, near=1.0, far=10.0),
+            Vector(i=-16.0, j=-16.0, k=1.0),
         ),
         (
-            Point(x=12.0, y=-12.0, z=4.0),
-            Direction(x=0.0, y=1.0, z=1.0),
-            Direction(x=1.0, y=0.0, z=0.0),
-            Screen(width=32.0, height=32.0, distance=1.0),
-            Point(x=28.0, y=-22.6066, z=16.0208),
+            Vector(i=12.0, j=-12.0, k=4.0),
+            Vector(i=0.0, j=1.0, k=1.0),
+            Vector(i=1.0, j=0.0, k=0.0),
+            ViewVolume(width=32.0, height=32.0, near=1.0, far=10.0),
+            Vector(i=28.0, j=-22.6066, k=16.0208),
         ),
     ],
 )
 def test_screen_origin(
-    position: Point,
-    forward: Direction,
-    up: Direction,
-    screen: Screen,
-    expected: Point,
+    position: Vector,
+    forward: Vector,
+    up: Vector,
+    view_volume: ViewVolume,
+    expected: Vector,
 ):
-    camera = Camera(position=position, forward=forward, up=up, screen=screen)
+    frame = Frame(position, _calc_orientation(forward, up))
+    camera = Camera(frame, view_volume=view_volume)
     actual = camera.screen_origin
-    assert actual.x == pytest.approx(expected.x)
-    assert actual.y == pytest.approx(expected.y)
-    assert actual.z == pytest.approx(expected.z)
+    assert actual.i == pytest.approx(expected.i)
+    assert actual.j == pytest.approx(expected.j)
+    assert actual.k == pytest.approx(expected.k)
 
 
 @pytest.mark.usefixtures("array_api_backend")
 @pytest.mark.parametrize(
-    "position, forward, up, screen, expected",
+    "position, forward, up, view_volume, expected",
     [
         (
-            Point(x=0.0, y=0.0, z=0.0),
-            Direction(x=0.0, y=0.0, z=1.0),
-            Direction(x=0.0, y=-1.0, z=0.0),
-            Screen(width=32.0, height=32.0, distance=1.0),
-            Point(x=0.0, y=0.0, z=1.0),
+            Vector(i=0.0, j=0.0, k=0.0),
+            Vector(i=0.0, j=0.0, k=1.0),
+            Vector(i=0.0, j=-1.0, k=0.0),
+            ViewVolume(width=32.0, height=32.0, near=1.0, far=1.0),
+            Vector(i=0.0, j=0.0, k=1.0),
         ),
         (
-            Point(x=12.0, y=-12.0, z=4.0),
-            Direction(x=0.0, y=1.0, z=1.0),
-            Direction(x=1.0, y=0.0, z=0.0),
-            Screen(width=32.0, height=32.0, distance=1.0),
-            Point(x=12.0, y=-11.29289, z=4.707107),
+            Vector(i=12.0, j=-12.0, k=4.0),
+            Vector(i=0.0, j=1.0, k=1.0),
+            Vector(i=1.0, j=0.0, k=0.0),
+            ViewVolume(width=32.0, height=32.0, near=1.0, far=1.0),
+            Vector(i=12.0, j=-11.29289, k=4.707107),
         ),
     ],
 )
 def test_screen_center(
-    position: Point,
-    forward: Direction,
-    up: Direction,
-    screen: Screen,
-    expected: Point,
+    position: Vector,
+    forward: Vector,
+    up: Vector,
+    view_volume: ViewVolume,
+    expected: Vector,
 ):
-    camera = Camera(position=position, forward=forward, up=up, screen=screen)
+    frame = Frame(position, _calc_orientation(forward, up))
+    camera = Camera(frame, view_volume=view_volume)
     actual = camera.screen_center
-    assert actual.x == pytest.approx(expected.x)
-    assert actual.y == pytest.approx(expected.y)
-    assert actual.z == pytest.approx(expected.z)
-
-
-@pytest.mark.usefixtures("array_api_backend")
-@pytest.mark.parametrize(
-    "position, forward, up, screen, expected",
-    [
-        (
-            Point(x=0.0, y=0.0, z=0.0),
-            Direction(x=0.0, y=0.0, z=1.0),
-            Direction(x=0.0, y=-1.0, z=0.0),
-            Screen(width=32.0, height=32.0, distance=1.0),
-            Orientation(
-                i=Direction(x=1.0, y=0.0, z=0.0),
-                j=Direction(x=0.0, y=1.0, z=0.0),
-                k=Direction(x=0.0, y=0.0, z=1.0),
-            ),
-        ),
-        (
-            Point(x=12.0, y=-12.0, z=4.0),
-            Direction(x=0.0, y=1.0, z=1.0),
-            Direction(x=1.0, y=0.0, z=0.0),
-            Screen(width=32.0, height=32.0, distance=1.0),
-            Orientation(
-                i=Direction(x=0.0, y=1.0, z=-1.0),
-                j=Direction(x=-1.0, y=0.0, z=0.0),
-                k=Direction(x=0.0, y=1.0, z=1.0),
-            ),
-        ),
-    ],
-)
-def test_screen_orientation(
-    position: Point,
-    forward: Direction,
-    up: Direction,
-    screen: Screen,
-    expected: Point,
-    helpers: Any,
-):
-    camera = Camera(position=position, forward=forward, up=up, screen=screen)
-    actual = camera.screen_orientation
-    assert helpers.approx_equal(actual.to_array(), expected.to_array())
+    assert actual.i == pytest.approx(expected.i)
+    assert actual.j == pytest.approx(expected.j)
+    assert actual.k == pytest.approx(expected.k)
 
 
 @pytest.mark.parametrize(
@@ -134,4 +102,4 @@ def test_screen_orientation(
 )
 def test_screen_create_fail(width: float, height: float, distance: float):
     with pytest.raises(ValueError):
-        Screen(width=width, height=height, distance=distance)
+        ViewVolume(width=width, height=height, near=distance, far=distance)

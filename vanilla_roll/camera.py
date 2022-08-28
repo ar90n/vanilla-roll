@@ -2,14 +2,9 @@ from dataclasses import dataclass
 from functools import cached_property
 
 import vanilla_roll.array_api as xp
-from vanilla_roll.geometry.element import (
-    Frame,
-    Orientation,
-    Vector,
-    as_array,
-)
-from vanilla_roll.geometry.linalg import normalize_vector
 from vanilla_roll.geometry.conversion import Conversion
+from vanilla_roll.geometry.element import Frame, Orientation, Vector, as_array
+from vanilla_roll.geometry.linalg import normalize_vector
 from vanilla_roll.validation import (
     IsFinite,
     IsGreaterEqualThan,
@@ -68,10 +63,8 @@ class Camera:
 
     @cached_property
     def screen_center(self) -> Vector:
-        center = (
-            as_array(self.frame.origin)
-            # + self.view_volume.far * self.forward.to_array()
-            # + as_array(self.forward)
+        center = as_array(self.frame.origin) + self.view_volume.near * as_array(
+            self.forward
         )
         return Vector.of_array(center)
 
