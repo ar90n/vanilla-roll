@@ -51,19 +51,15 @@ def sample_linear(array: xp.Array, /, *, coordinates: xp.Array) -> xp.Array:
     for s in itertools.product(*([[0, 1]] * org.shape[-1])):
         step = xp.asarray(s)
         cur = org + step
-        cur = xp.astype(
-            clip(
-                cur,
-                a_min=xp.zeros((org.shape[-1],), dtype=xp.int64),
-                a_max=xp.asarray(shape) - 1,
-            ),
-            xp.int64,
-        )
+
+        mask = xp.logical_and(0 <= cur, cur < xp.asarray(shape))
+        mask = xp.logical_and(mask[:, 0], mask[:, 1])
+
         cur_indices = ravel_index(cur.T, shape)
         step = xp.astype(step, xp.float64)
         cur_weight = xp.prod((1 - step) - (1 - 2 * step) * diff, axis=-1)
-        values = take(array, indices=cur_indices)
-        ret += cur_weight * xp.astype(values, xp.float64)
+        values = take(array, indices=cur_indices[mask])
+        ret[mask] += cur_weight[mask] * xp.astype(values, xp.float64)
     return ret
 
 
