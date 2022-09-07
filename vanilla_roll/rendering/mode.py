@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from vanilla_roll.rendering.transfer_function import TransferFunction
+
 
 @dataclass(frozen=True)
 class MIP:
@@ -18,7 +20,7 @@ class Average:
 
 @dataclass(frozen=True)
 class VR:
-    pass
+    transfer_function: TransferFunction
 
 
 Mode = MIP | MinP | Average | VR

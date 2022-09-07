@@ -19,8 +19,14 @@ from vanilla_roll.geometry.element import (
     world_frame,
 )
 from vanilla_roll.geometry.linalg import norm, normalize_vector
-from vanilla_roll.rendering.accumulation import Accumulator, Slice2d
-from vanilla_roll.rendering.types import Renderer, RenderingResult
+from vanilla_roll.rendering.composition import Composer, Slice2d
+from vanilla_roll.rendering.types import (
+    ColorImage,
+    Image,
+    MonoImage,
+    Renderer,
+    RenderingResult,
+)
 from vanilla_roll.volume import Volume
 
 
@@ -145,14 +151,22 @@ def _calc_update_region_slice(
     return Slice2d(j=slice(oy, oy + shape[0]), i=slice(ox, ox + shape[1]))
 
 
+def _get_slice_indices(volume: Volume, camera: Camera) -> range:
+    return (
+        range(volume.data.shape[0])
+        if 0 < camera.forward.k
+        else range(volume.data.shape[0] - 1, -1, -1)
+    )
+
+
 def _render_intermediate_image(
     perm_volume: Volume,
     shearing: Vector,
     translation: Vector,
     perm_camera: Camera,
     inv_conversion: Conversion,
-    accumulator_constructor: Callable[[tuple[int, int]], Accumulator],
-) -> xp.Array:
+    accumulator_constructor: Callable[[tuple[int, int]], Composer],
+) -> Image:
     dir_mat = _create_direction_mat_in_world_frame(perm_camera, inv_conversion)
 
     grid_j, grid_i = _mesh_grid_from_origin(
@@ -174,12 +188,13 @@ def _render_intermediate_image(
         _calc_intermediate_image_shape(shearing, translation, perm_volume.data.shape)
     )
     thickness = norm(perm_volume.frame.orientation.k)
-    for i in range(perm_volume.data.shape[0]):
+
+    for i in _get_slice_indices(perm_volume, perm_camera):
         s = xp.astype(perm_volume.data[i, :, :], xp.float64)
         mask = _create_mask(i, s.shape)
         slice = _calc_update_region_slice(i, shearing, translation, s.shape)
         accumulator.add(s, thickness, mask=mask, slice=slice)
-    return accumulator.get_result()
+    return accumulator.compose()
 
 
 def _calc_warp_matrix(
@@ -208,10 +223,29 @@ def _calc_warp_matrix(
     return warp_mat
 
 
+def _warp(
+    intermediate_image: Image,
+    view_matrix: xp.Array,
+    translation: Vector,
+    src_shape: tuple[int, int],
+    dst_shape: tuple[int, int],
+) -> Image:
+    warp_mat = _calc_warp_matrix(view_matrix, translation, dst_shape, src_shape)
+    match intermediate_image:
+        case MonoImage(l):
+            warped_l = xpi.affine_transform(l, xp.linalg.inv(warp_mat.T), dst_shape)
+            return MonoImage(l=warped_l)
+        case ColorImage(r, g, b):
+            warped_r = xpi.affine_transform(r, xp.linalg.inv(warp_mat.T), dst_shape)
+            warped_g = xpi.affine_transform(g, xp.linalg.inv(warp_mat.T), dst_shape)
+            warped_b = xpi.affine_transform(b, xp.linalg.inv(warp_mat.T), dst_shape)
+            return ColorImage(r=warped_r, g=warped_g, b=warped_b)
+
+
 def create_renderer(
     volume: Volume,
     /,
-    accumulator_constructor: Callable[[tuple[int, int]], Accumulator],
+    accumulator_constructor: Callable[[tuple[int, int]], Composer],
     sampling_method: xpe.SamplingMethod,
 ) -> Renderer:
     transform, inv_transform = _create_transformation(src=world_frame, dst=volume.frame)
@@ -236,12 +270,12 @@ def create_renderer(
             accumulator_constructor,
         )
 
-        view_mat = perm_camera.view_matrix
-        warp_mat = _calc_warp_matrix(
-            view_mat, translation, shape, perm_camera.screen_shape
-        )
-        result_image = xpi.affine_transform(
-            intermediate_image, xp.linalg.inv(warp_mat.T), shape
+        result_image = _warp(
+            intermediate_image,
+            perm_camera.view_matrix,
+            translation,
+            perm_camera.screen_shape,
+            shape,
         )
         result_spacing = Vector(
             i=camera.view_volume.width / shape[1],

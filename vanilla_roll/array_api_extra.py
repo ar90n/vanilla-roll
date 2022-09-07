@@ -58,8 +58,17 @@ def sample_linear(array: xp.Array, /, *, coordinates: xp.Array) -> xp.Array:
         cur_indices = ravel_index(cur.T, shape)
         step = xp.astype(step, xp.float64)
         cur_weight = xp.prod((1 - step) - (1 - 2 * step) * diff, axis=-1)
-        values = take(array, indices=cur_indices[mask])
-        ret[mask] += cur_weight[mask] * xp.astype(values, xp.float64)
+
+        indices = cur_indices[mask]
+        weight = cur_weight[mask]
+
+        # if array.ndim == 3:
+        #    indices *= 3
+        #    indices = xp.reshape(xp.stack([indices, indices + 1, indices + 2], axis=-1), (-1,))
+        #    weight = xp.reshape(xp.stack([weight, weight, weight], axis=-1), (-1,))
+
+        values = take(array, indices=indices)
+        ret[mask] += weight * xp.astype(values, xp.float64)
     return ret
 
 

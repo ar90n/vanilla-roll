@@ -7,8 +7,23 @@ from vanilla_roll.geometry.element import Orientation, Vector
 
 
 @dataclass(frozen=True)
+class ColorImage:
+    r: xp.Array
+    g: xp.Array
+    b: xp.Array
+
+
+@dataclass(frozen=True)
+class MonoImage:
+    l: xp.Array
+
+
+Image: TypeAlias = ColorImage | MonoImage
+
+
+@dataclass(frozen=True)
 class RenderingResult:
-    image: xp.Array
+    image: Image
     spacing: Vector | None
     origin: Vector | None
     orientation: Orientation | None
