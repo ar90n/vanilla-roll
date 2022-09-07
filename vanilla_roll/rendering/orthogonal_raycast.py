@@ -7,7 +7,7 @@ from vanilla_roll.camera import Camera
 from vanilla_roll.geometry.conversion import Transformation
 from vanilla_roll.geometry.element import Vector, as_array, world_frame
 from vanilla_roll.geometry.linalg import normalize_vector
-from vanilla_roll.rendering.accumulation import Accumulator
+from vanilla_roll.rendering.composition import Composer
 from vanilla_roll.rendering.types import Renderer, RenderingResult
 from vanilla_roll.volume import Volume
 
@@ -109,7 +109,7 @@ def create_renderer(
     volume: Volume,
     /,
     step: float,
-    accumulator_constructor: Callable[[tuple[int, int]], Accumulator],
+    accumulator_constructor: Callable[[tuple[int, int]], Composer],
     sampling_method: xpe.SamplingMethod,
 ) -> Renderer:
     def _render(camera: Camera, shape: tuple[int, int]) -> RenderingResult:
@@ -129,7 +129,7 @@ def create_renderer(
             accumulator.add(view_volume[k, :, :], step)
 
         return RenderingResult(
-            image=accumulator.get_result(),
+            image=accumulator.compose(),
             spacing=Vector(
                 i=camera.view_volume.width / columns,
                 j=camera.view_volume.height / rows,
