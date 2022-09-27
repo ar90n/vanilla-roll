@@ -1,6 +1,11 @@
+# pyright: reportUnknownMemberType=false
+# pyright: reportUnknownParameterType=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportUnknownVariableType=false
+
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import vanilla_roll.array_api as xp
 from vanilla_roll.anatomy_orientation import AnatomyOrientation
@@ -9,10 +14,11 @@ from vanilla_roll.geometry.element import Frame, Orientation, Vector, as_array
 from vanilla_roll.volume import Volume
 
 try:
-    import nibabel as nib  # type: ignore
+    import nibabel as nib
     import numpy as np
     import numpy.typing as npt
-    from nibabel.orientations import aff2axcodes  # type: ignore
+    from nibabel.orientations import aff2axcodes
+    from nibabel.spatialimages import SpatialImage
 
     HAS_NIBABEL = True
 except ImportError:
@@ -21,7 +27,8 @@ except ImportError:
         import nibabel as nib
         import numpy as np
         import numpy.typing as npt
-        from nibabel.orientations import aff2axcodes  # type: ignore
+        from nibabel.orientations import aff2axcodes
+        from nibabel.spatialimages import SpatialImage
 
 
 @dataclass(frozen=True)
@@ -29,7 +36,7 @@ class NIFTIIOParams:
     pass
 
 
-def _get_spacing(nii: nib.Nifti1Image) -> Vector:
+def _get_spacing(nii: SpatialImage) -> Vector:
     zooms: tuple[float, float, float] = nii.header.get_zooms()  # type: ignore
     return Vector(
         i=zooms[0],
@@ -38,8 +45,8 @@ def _get_spacing(nii: nib.Nifti1Image) -> Vector:
     )
 
 
-def _get_origin(nii: nib.Nifti1Image) -> Vector:
-    translates: npt.NDArray[np.float64] = nii.affine[:3, 3]  # type: ignore
+def _get_origin(nii: SpatialImage) -> Vector:
+    translates: npt.NDArray[np.float64] = nii.affine[:3, 3]
     return Vector(
         i=translates[0],
         j=translates[1],
@@ -47,8 +54,8 @@ def _get_origin(nii: nib.Nifti1Image) -> Vector:
     )
 
 
-def _get_orientation(nii: nib.Nifti1Image) -> Orientation:
-    orientation: npt.NDArray[np.float64] = nii.affine[:3, :3]  # type: ignore
+def _get_orientation(nii: SpatialImage) -> Orientation:
+    orientation: npt.NDArray[np.float64] = nii.affine[:3, :3]
     return Orientation(
         i=Vector.of_array(orientation[0]),
         j=Vector.of_array(orientation[1]),
@@ -56,20 +63,25 @@ def _get_orientation(nii: nib.Nifti1Image) -> Orientation:
     )
 
 
-def _get_anatomy_orientation(nii: nib.Nifti1Image) -> AnatomyOrientation:
-    axcodes: tuple[str] = aff2axcodes(nii.affine)  # type: ignore
-    return parse_anatomy_orientation("".join(axcodes[::-1]))  # type: ignore
+def _get_anatomy_orientation(nii: SpatialImage) -> AnatomyOrientation:
+    axcodes: tuple[str] = aff2axcodes(nii.affine)
+    return parse_anatomy_orientation("".join(axcodes[::-1]))
 
 
-def _get_data(nii: nib.Nifti1Image) -> xp.Array:
-    return xp.from_dlpack(nii.get_data())  # type: ignore
+def _get_data(nii: SpatialImage) -> xp.Array:
+    return xp.from_dlpack(nii.get_data())
+
+
+def _load_data(path: str | Path) -> SpatialImage:
+    image: SpatialImage = nib.load(path)
+    return cast(SpatialImage, image)
 
 
 def read_nifti(path: str | Path, params: NIFTIIOParams = NIFTIIOParams()) -> Volume:
     if not HAS_NIBABEL:
-        raise RuntimeError("metaimageio is not installed")
+        raise RuntimeError("nibabel is not installed")
 
-    nii: nib.Nifti1Image = nib.load(path)  # type: ignore
+    nii = _load_data(path)
 
     data = _get_data(nii)
     spacing = _get_spacing(nii)
