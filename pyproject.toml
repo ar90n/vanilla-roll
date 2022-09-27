@@ -9,7 +9,7 @@ include = ["alfort_dom/py.typed"]
 [tool.poetry.dependencies]
 python = "~3.10"
 numpy = "^1.23.*"
-numba = "^0.55.2"
+numba = "^0.56.0"
 scipy = "^1.8.1"
 scikit-spatial = "^6.4.0"
 pydantic = "^1.9.1"
