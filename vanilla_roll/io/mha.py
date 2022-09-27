@@ -1,15 +1,32 @@
 # pyright: reportUnknownMemberType=false
 
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, cast
-
-import metaimageio  # type: ignore
-import numpy as np
-import numpy.typing as npt
+from typing import TYPE_CHECKING, Any, cast
 
 import vanilla_roll.array_api as xp
+from vanilla_roll.anatomy_orientation import AnatomyOrientation
+from vanilla_roll.anatomy_orientation import parse as parse_anatomy_orientation
 from vanilla_roll.geometry.element import Frame, Orientation, Vector, as_array
 from vanilla_roll.volume import Volume
+
+try:
+    import metaimageio  # type: ignore
+    import numpy as np
+    import numpy.typing as npt
+
+    HAS_METAIMAGEIO = True
+except ImportError:
+    HAS_METAIMAGEIO = False  # type: ignore
+    if TYPE_CHECKING:
+        import metaimageio  # type: ignore
+        import numpy as np
+        import numpy.typing as npt
+
+
+@dataclass(frozen=True)
+class MHAIOParams:
+    force_lps: bool = True
 
 
 def _get_spacing_from_mha_meta(meta: dict[str, Any]) -> Vector:
@@ -47,7 +64,22 @@ def _get_orientation_from_mha_meta(meta: dict[str, Any]) -> Orientation:
     return Orientation(k=layler_dir, j=column_dir, i=row_dir)
 
 
-def read_mha(path: str | Path) -> Volume:
+def _get_anatomy_orientation(
+    meta: dict[str, Any], params: MHAIOParams
+) -> AnatomyOrientation | None:
+    if params.force_lps:
+        return parse_anatomy_orientation("LPS")
+
+    try:
+        return parse_anatomy_orientation(meta["AnatomicalOrientation"])
+    except (KeyError, ValueError):
+        return None
+
+
+def read_mha(path: str | Path, params: MHAIOParams = MHAIOParams()) -> Volume:
+    if not HAS_METAIMAGEIO:
+        raise RuntimeError("metaimageio is not installed")
+
     np_array_data, meta = cast(
         tuple[npt.NDArray[Any], dict[str, Any]], metaimageio.read(path)
     )
@@ -61,7 +93,9 @@ def read_mha(path: str | Path) -> Volume:
         j=Vector.of_array(spacing.j * as_array(orientation.j)),
         k=Vector.of_array(spacing.k * as_array(orientation.k)),
     )
+    anatomy_orientation = _get_anatomy_orientation(meta, params)
     return Volume(
         data,
         frame=Frame(origin, scaled_orientation),
+        anatomy_orientation=anatomy_orientation,
     )

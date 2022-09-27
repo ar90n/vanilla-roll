@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class Raycast:
+class Sampling:
     step: float
 
 
@@ -11,4 +11,4 @@ class ShearWarp:
     pass
 
 
-Algorithm = Raycast | ShearWarp
+Algorithm = Sampling | ShearWarp

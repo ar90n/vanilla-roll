@@ -43,6 +43,14 @@ def sample_nearest(array: xp.Array, /, *, coordinates: xp.Array) -> xp.Array:
 
 
 def sample_linear(array: xp.Array, /, *, coordinates: xp.Array) -> xp.Array:
+    def _create_mask(array: xp.Array, coordinates: xp.Array) -> xp.Array:
+        mask = xp.logical_and(0 <= coordinates, coordinates < xp.asarray(array.shape))
+
+        ret = xp.logical_and(mask[:, 0], mask[:, 1])
+        if array.ndim == 3:
+            ret = xp.logical_and(ret, mask[:, 2])
+        return ret
+
     ret = xp.zeros(coordinates.shape[0])
     org = xp.astype(xp.floor(coordinates), xp.int32)
     diff = coordinates - xp.astype(org, xp.float64)
@@ -52,8 +60,7 @@ def sample_linear(array: xp.Array, /, *, coordinates: xp.Array) -> xp.Array:
         step = xp.asarray(s)
         cur = org + step
 
-        mask = xp.logical_and(0 <= cur, cur < xp.asarray(shape))
-        mask = xp.logical_and(mask[:, 0], mask[:, 1])
+        mask = _create_mask(array, cur)
 
         cur_indices = ravel_index(cur.T, shape)
         step = xp.astype(step, xp.float64)
@@ -61,11 +68,6 @@ def sample_linear(array: xp.Array, /, *, coordinates: xp.Array) -> xp.Array:
 
         indices = cur_indices[mask]
         weight = cur_weight[mask]
-
-        # if array.ndim == 3:
-        #    indices *= 3
-        #    indices = xp.reshape(xp.stack([indices, indices + 1, indices + 2], axis=-1), (-1,))
-        #    weight = xp.reshape(xp.stack([weight, weight, weight], axis=-1), (-1,))
 
         values = take(array, indices=indices)
         ret[mask] += weight * xp.astype(values, xp.float64)

@@ -2,8 +2,15 @@ from dataclasses import dataclass
 from functools import cached_property
 
 import vanilla_roll.array_api as xp
-from vanilla_roll.geometry.conversion import Conversion
-from vanilla_roll.geometry.element import Frame, Orientation, Vector, as_array
+from vanilla_roll.anatomy_orientation import AnatomyAxis, get_direction
+from vanilla_roll.geometry.conversion import Transformation
+from vanilla_roll.geometry.element import (
+    Frame,
+    Orientation,
+    Vector,
+    as_array,
+    world_frame,
+)
 from vanilla_roll.geometry.linalg import normalize_vector
 from vanilla_roll.validation import (
     IsFinite,
@@ -11,6 +18,7 @@ from vanilla_roll.validation import (
     IsGreaterThan,
     Validator,
 )
+from vanilla_roll.volume import Volume
 
 
 @dataclass(frozen=True)
@@ -87,8 +95,103 @@ class Camera:
     def view_matrix(self) -> xp.Array:
         return xp.linalg.inv(as_array(self.frame))
 
-    def apply(self, convert: Conversion) -> "Camera":
-        return Camera(
-            frame=convert(self.frame),
-            view_volume=self.view_volume,
-        )
+
+def _calc_orientation(forward: Vector, up: Vector) -> Orientation:
+    j = Vector.of_array(-as_array(normalize_vector(up)))
+    k = normalize_vector(forward)
+    i = Vector.of_array(xp.linalg.cross(as_array(k), as_array(j)))
+    return Orientation(i=i, j=j, k=k)
+
+
+def _center_of(shape: tuple[int, int, int]) -> Vector:
+    return Vector(k=shape[0] / 2.0, j=shape[1] / 2.0, i=shape[2] / 2.0)
+
+
+def _calc_diag_length(shape: tuple[int, int, int]) -> float:
+    return (shape[0] ** 2 + shape[1] ** 2 + shape[2] ** 2) ** 0.5
+
+
+def _create_default_view_volume(target: Volume) -> ViewVolume:
+    diag_length = _calc_diag_length(target.data.shape)
+    scale = target.diagonal_length / diag_length
+    return ViewVolume(
+        width=scale * diag_length,
+        height=scale * diag_length,
+        far=scale * diag_length,
+        near=0,
+    )
+
+
+def create_from_volume_coordinates(
+    target: Volume,
+    /,
+    *,
+    position: Vector,
+    forward: Vector,
+    up: Vector,
+    view_volume: ViewVolume | None = None,
+) -> Camera:
+    if view_volume is None:
+        view_volume = _create_default_view_volume(target)
+
+    to_world = Transformation(target.frame, world_frame)
+    to_world2 = Transformation(
+        target.frame,
+        Frame(orientation=world_frame.orientation, origin=target.frame.origin),
+    )
+
+    return Camera(
+        frame=Frame(
+            origin=to_world(position),
+            orientation=_calc_orientation(to_world2(forward), to_world2(up)),
+        ),
+        view_volume=view_volume,
+    )
+
+
+def create_from_anatomy_axis(
+    target: Volume,
+    /,
+    *,
+    face: AnatomyAxis,
+    up: AnatomyAxis,
+    view_volume: ViewVolume | None = None,
+) -> Camera:
+    if target.anatomy_orientation is None:
+        raise ValueError("target.anatomy_orientation is None")
+
+    if view_volume is None:
+        view_volume = _create_default_view_volume(target)
+
+    half_diag_length = _calc_diag_length(target.data.shape) / 2.0
+    position = _center_of(target.data.shape) + half_diag_length * get_direction(
+        target.anatomy_orientation, face
+    )
+
+    return create_from_volume_coordinates(
+        target,
+        position=position,
+        forward=get_direction(target.anatomy_orientation, face.inverse()),
+        up=get_direction(target.anatomy_orientation, up),
+        view_volume=view_volume,
+    )
+
+
+def create_lookat_center(
+    target: Volume,
+    /,
+    *,
+    position: Vector,
+    up: Vector,
+    view_volume: ViewVolume | None = None,
+) -> Camera:
+    if view_volume is None:
+        view_volume = _create_default_view_volume(target)
+
+    center = Transformation(target.frame, world_frame)(_center_of(target.data.shape))
+    forward = normalize_vector(center - position)
+
+    return Camera(
+        frame=Frame(origin=position, orientation=_calc_orientation(forward, up)),
+        view_volume=view_volume,
+    )

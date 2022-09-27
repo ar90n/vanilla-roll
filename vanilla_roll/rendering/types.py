@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, TypeAlias
+from typing import Protocol, TypeAlias
 
 import vanilla_roll.array_api as xp
 from vanilla_roll.camera import Camera
@@ -29,4 +29,10 @@ class RenderingResult:
     orientation: Orientation | None
 
 
-Renderer: TypeAlias = Callable[[Camera, tuple[int, int]], RenderingResult]
+class Renderer(Protocol):
+    def __call__(
+        self,
+        camera: Camera,
+        shape: tuple[int, int] | None = ...,
+    ) -> RenderingResult:
+        ...

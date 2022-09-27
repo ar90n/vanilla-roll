@@ -16,6 +16,7 @@ pydantic = "^1.9.1"
 metaimageio = "^1.0.0"
 torch = "^1.8.*"
 nibabel = "^3.2.2"
+pydicom = "^2.3.0"
 
 [tool.poetry.group.dev.dependencies]
 joblib = "^1.1.0"

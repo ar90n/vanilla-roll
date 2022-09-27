@@ -8,7 +8,8 @@ from vanilla_roll.geometry.conversion import Transformation
 from vanilla_roll.geometry.element import Vector, as_array, world_frame
 from vanilla_roll.geometry.linalg import normalize_vector
 from vanilla_roll.rendering.composition import Composer
-from vanilla_roll.rendering.types import Renderer, RenderingResult
+from vanilla_roll.rendering.image_proc import resize_image
+from vanilla_roll.rendering.types import Image, Renderer, RenderingResult
 from vanilla_roll.volume import Volume
 
 
@@ -23,12 +24,12 @@ def _direciton_aligned_linspace(
 
 
 def _calc_orthogonal_view_volume_coordinates(
-    transform: Transformation,
-    camera: Camera,
-    columns: int,
-    rows: int,
-    depth: int,
-) -> xp.Array:
+    transform: Transformation, camera: Camera, step: float
+) -> tuple[xp.Array, tuple[int, int, int]]:
+    columns = int(camera.view_volume.width / step)
+    rows = int(camera.view_volume.height / step)
+    depth = _calc_layers(camera, step)
+
     row_direction = normalize_vector(camera.screen_orientation.i)
     row_space = _direciton_aligned_linspace(
         as_array(row_direction),
@@ -36,7 +37,6 @@ def _calc_orthogonal_view_volume_coordinates(
         end=(camera.view_volume.width / 2.0),
         samples=columns,
     )
-    row_space = transform(row_space)
 
     column_direction = normalize_vector(camera.screen_orientation.j)
     column_space = _direciton_aligned_linspace(
@@ -45,7 +45,6 @@ def _calc_orthogonal_view_volume_coordinates(
         end=(camera.view_volume.height / 2.0),
         samples=rows,
     )
-    column_space = transform(column_space)
 
     depth_direction = normalize_vector(camera.screen_orientation.k)
     depth_space = _direciton_aligned_linspace(
@@ -54,17 +53,15 @@ def _calc_orthogonal_view_volume_coordinates(
         end=camera.view_volume.far,
         samples=depth,
     )
-    depth_space = transform(depth_space)
-
-    origin = transform(as_array(camera.frame.origin))
 
     coords = (
-        origin
+        as_array(camera.frame.origin)
         + xp.reshape(row_space.T, (1, 1, -1, 3))
         + xp.reshape(column_space.T, (1, -1, 1, 3))
         + xp.reshape(depth_space.T, (-1, 1, 1, 3))
     )
-    return xp.reshape(coords, (-1, 3))
+    coords = transform(xp.reshape(coords, (-1, 3)).T).T
+    return coords, (depth, rows, columns)
 
 
 def _create_mask(coords: xp.Array, /, shape: tuple[int, int, int]) -> xp.Array:
@@ -81,28 +78,44 @@ def _extract_orthogonal_view_volume(
     volume: Volume,
     /,
     camera: Camera,
-    columns: int,
-    rows: int,
-    layers: int,
+    step: float,
     sampling_method: xpe.SamplingMethod,
 ) -> xp.Array:
     transform = Transformation(src=world_frame, dst=volume.frame)
-    coords = _calc_orthogonal_view_volume_coordinates(
-        transform, camera, columns, rows, layers
-    )
+    coords, shape = _calc_orthogonal_view_volume_coordinates(transform, camera, step)
 
     mask = _create_mask(coords, shape=volume.data.shape)
     samples = xp.zeros(math.prod(mask.shape))
     samples[mask] = xpe.sample(
         volume.data, coordinates=coords[mask], method=sampling_method
     )
-    return xp.reshape(samples, (layers, rows, columns))
+    return xp.reshape(samples, shape)
 
 
 def _calc_layers(camera: Camera, step: float) -> int:
     return max(
         1, int(math.floor((camera.view_volume.far - camera.view_volume.near) / step))
     )
+
+
+def _calc_spacing(camera: Camera, shape: tuple[int, int], step: float) -> Vector:
+    return Vector(
+        i=camera.view_volume.width / shape[1],
+        j=camera.view_volume.height / shape[0],
+        k=step,
+    )
+
+
+def _compose_view_volume_voxels(
+    view_volume_voxels: xp.Array,
+    accumulator_constructor: Callable[[tuple[int, int]], Composer],
+    spacing: float,
+) -> Image:
+    layers, rows, columns = view_volume_voxels.shape
+    accumulator = accumulator_constructor((rows, columns))
+    for k in range(layers):
+        accumulator.add(view_volume_voxels[k, :, :], spacing)
+    return accumulator.compose()
 
 
 def create_renderer(
@@ -112,29 +125,29 @@ def create_renderer(
     accumulator_constructor: Callable[[tuple[int, int]], Composer],
     sampling_method: xpe.SamplingMethod,
 ) -> Renderer:
-    def _render(camera: Camera, shape: tuple[int, int]) -> RenderingResult:
-        rows, columns = shape
-        layers = _calc_layers(camera, step)
-        view_volume = _extract_orthogonal_view_volume(
+    def _render(
+        camera: Camera, shape: tuple[int, int] | None = None
+    ) -> RenderingResult:
+        if shape is None:
+            shape = (
+                int(camera.view_volume.height / step),
+                int(camera.view_volume.width / step),
+            )
+
+        view_volume_voxels = _extract_orthogonal_view_volume(
             volume,
             camera=camera,
-            columns=columns,
-            rows=rows,
-            layers=layers,
+            step=step,
             sampling_method=sampling_method,
         )
 
-        accumulator = accumulator_constructor(shape)
-        for k in range(layers):
-            accumulator.add(view_volume[k, :, :], step)
+        composed_image = _compose_view_volume_voxels(
+            view_volume_voxels, accumulator_constructor, step
+        )
 
         return RenderingResult(
-            image=accumulator.compose(),
-            spacing=Vector(
-                i=camera.view_volume.width / columns,
-                j=camera.view_volume.height / rows,
-                k=step,
-            ),
+            image=resize_image(composed_image, shape, method=sampling_method),
+            spacing=_calc_spacing(camera, shape, step),
             origin=camera.screen_origin,
             orientation=camera.screen_orientation,
         )

@@ -1,10 +1,12 @@
-from . import composition, projection, types
-from .rendering import convert_image_to_array, creaet_renderer
+from . import algorithm, composition, mode, projection, types
+from .rendering import convert_image_to_array, create_renderer
 
 __all__ = [
     "types",
+    "mode",
+    "algorithm",
     "composition",
     "projection",
-    "creaet_renderer",
+    "create_renderer",
     "convert_image_to_array",
 ]

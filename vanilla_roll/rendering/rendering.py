@@ -2,11 +2,11 @@ from typing import Callable
 
 import vanilla_roll.array_api as xp
 import vanilla_roll.array_api_extra as xpe
-from vanilla_roll.rendering.algorithm import Algorithm, Raycast, ShearWarp
+from vanilla_roll.rendering.algorithm import Algorithm, Sampling, ShearWarp
 from vanilla_roll.rendering.composition import AccMax, AccMean, AccMin, AccVR, Composer
 from vanilla_roll.rendering.mode import MIP, VR, Average, MinP, Mode
-from vanilla_roll.rendering.orthogonal_raycast import (
-    create_renderer as create_orthogonal_raycast,
+from vanilla_roll.rendering.orthogonal_sampling import (
+    create_renderer as create_orthogonal_sampling,
 )
 from vanilla_roll.rendering.orthogonal_shear_warp import (
     create_renderer as create_orthogonal_shear_warp,
@@ -35,7 +35,7 @@ def _get_accumulator_constructor(
             raise NotImplementedError(f"{rendering_mode}")
 
 
-def creaet_renderer(
+def create_renderer(
     volume: Volume,
     projection: Projection,
     rendering_method: Mode,
@@ -44,8 +44,8 @@ def creaet_renderer(
 ) -> Renderer:
     accumulator_constructor = _get_accumulator_constructor(rendering_method)
     match (projection, algorithm):
-        case (Orthogoal(), Raycast(step)):
-            return create_orthogonal_raycast(
+        case (Orthogoal(), Sampling(step)):
+            return create_orthogonal_sampling(
                 volume,
                 step=step,
                 accumulator_constructor=accumulator_constructor,

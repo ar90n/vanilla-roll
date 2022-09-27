@@ -1,8 +1,12 @@
 # pyright: reportUnknownMemberType=false
+from typing import Any
+
 import pytest
 
 import vanilla_roll.array_api as xp
-from vanilla_roll.camera import Camera, ViewVolume
+from tests.conftest import Helpers
+from vanilla_roll.anatomy_orientation import AnatomyAxis, Axial, Sagittal
+from vanilla_roll.camera import Camera, ViewVolume, create_from_anatomy_axis
 from vanilla_roll.geometry.element import Frame, Orientation, Vector, as_array
 from vanilla_roll.geometry.linalg import normalize_vector
 
@@ -103,3 +107,57 @@ def test_screen_center(
 def test_screen_create_fail(width: float, height: float, distance: float):
     with pytest.raises(ValueError):
         ViewVolume(width=width, height=height, near=distance, far=distance)
+
+
+@pytest.mark.parametrize(
+    "volume_params, face, up, expected",
+    [
+        (
+            {},
+            Sagittal.ANTERIOR,
+            Axial.SUPERIOR,
+            Camera(
+                Frame(
+                    Vector(i=128.0, j=349.7025033688163, k=128.0),
+                    Orientation(
+                        i=Vector(i=-1.0, j=0.0, k=0.0),
+                        j=Vector(i=0.0, j=0.0, k=-1.0),
+                        k=Vector(i=0.0, j=-1.0, k=0.0),
+                    ),
+                ),
+                ViewVolume(
+                    443.40500673763256,
+                    443.40500673763256,
+                    near=0,
+                    far=443.40500673763256,
+                ),
+            ),
+        )
+    ],
+)
+def test_create_aligned_camera(
+    helpers: Helpers,
+    volume_params: dict[str, Any],
+    face: AnatomyAxis,
+    up: AnatomyAxis,
+    expected: Camera,
+):
+    volume = helpers.create_volume(**volume_params)
+    actual = create_from_anatomy_axis(volume, face=face, up=up)
+
+    assert helpers.approx_equal(
+        as_array(actual.frame.origin), as_array(expected.frame.origin)
+    )
+    assert helpers.approx_equal(
+        as_array(actual.frame.orientation), as_array(expected.frame.orientation)
+    )
+    assert actual.view_volume.far == pytest.approx(expected.view_volume.far, abs=1e-12)
+    assert actual.view_volume.near == pytest.approx(
+        expected.view_volume.near, abs=1e-12
+    )
+    assert actual.view_volume.width == pytest.approx(
+        expected.view_volume.width, abs=1e-12
+    )
+    assert actual.view_volume.height == pytest.approx(
+        expected.view_volume.height, abs=1e-12
+    )

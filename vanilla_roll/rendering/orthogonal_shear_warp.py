@@ -1,9 +1,9 @@
 import math
-from typing import Callable
+from typing import Callable, Generic, Protocol, TypeVar
 
 import vanilla_roll.array_api as xp
 import vanilla_roll.array_api_extra as xpe
-import vanilla_roll.array_api_image as xpi
+from vanilla_roll.anatomy_orientation import create as create_anatomy_orientation
 from vanilla_roll.camera import Camera
 from vanilla_roll.geometry.conversion import (
     Composition,
@@ -20,14 +20,29 @@ from vanilla_roll.geometry.element import (
 )
 from vanilla_roll.geometry.linalg import norm, normalize_vector
 from vanilla_roll.rendering.composition import Composer, Slice2d
-from vanilla_roll.rendering.types import (
-    ColorImage,
-    Image,
-    MonoImage,
-    Renderer,
-    RenderingResult,
-)
+from vanilla_roll.rendering.image_proc import affine_image
+from vanilla_roll.rendering.types import Image, Renderer, RenderingResult
 from vanilla_roll.volume import Volume
+
+T = TypeVar("T")
+
+
+class HasIJK(Protocol, Generic[T]):
+    i: T
+    j: T
+    k: T
+
+
+def _permutate_kji(obj: HasIJK[T], order: tuple[int, int, int]) -> tuple[T, T, T]:
+    k, j, i = (
+        [
+            obj.k,
+            obj.j,
+            obj.i,
+        ][i]
+        for i in order
+    )
+    return (k, j, i)
 
 
 def _create_transformation(
@@ -67,24 +82,25 @@ def _create_permutation_from_principal_axis(
 
 
 def _permute_volume(target: Volume, order: tuple[int, int, int]) -> Volume:
-    k, j, i = (
-        [
-            target.frame.orientation.k,
-            target.frame.orientation.j,
-            target.frame.orientation.i,
-        ][i]
-        for i in order
+    k, j, i = _permutate_kji(target.frame.orientation, order)
+    permutated_frame = Frame(
+        orientation=Orientation(
+            i=i,
+            j=j,
+            k=k,
+        ),
+        origin=target.frame.origin,
     )
+
+    permutated_anatomy_orientation = target.anatomy_orientation
+    if permutated_anatomy_orientation is not None:
+        k, j, i = _permutate_kji(permutated_anatomy_orientation, order)
+        permutated_anatomy_orientation = create_anatomy_orientation(i=i, j=j, k=k)
+
     return Volume(
         data=xp.permute_dims(target.data, order),
-        frame=Frame(
-            orientation=Orientation(
-                i=i,
-                j=j,
-                k=k,
-            ),
-            origin=target.frame.origin,
-        ),
+        frame=permutated_frame,
+        anatomy_orientation=permutated_anatomy_orientation,
     )
 
 
@@ -118,9 +134,11 @@ def _calc_intermediate_image_shape(
 def _create_direction_mat_in_world_frame(
     camera: Camera, inv_conversion: Conversion
 ) -> xp.Array:
-    k = as_array(normalize_vector(inv_conversion(camera.frame.orientation.k)))
-    j = as_array(normalize_vector(inv_conversion(camera.frame.orientation.j)))
-    i = as_array(normalize_vector(inv_conversion(camera.frame.orientation.i)))
+    inv_orientation = inv_conversion(camera.frame.orientation)
+
+    k = as_array(normalize_vector(inv_orientation.k))
+    j = as_array(normalize_vector(inv_orientation.j))
+    i = as_array(normalize_vector(inv_orientation.i))
 
     return xp.asarray([k, j, i]).T
 
@@ -180,8 +198,8 @@ def _render_intermediate_image(
         grid_in_world = xp.reshape(
             inv_conversion(xp.reshape(grid, (-1, 3)).T).T, grid.shape
         )
-        points_in_world = grid_in_world @ dir_mat
-        masks = (min_point < points_in_world) & (points_in_world < max_point)
+        points_in_view = grid_in_world @ dir_mat
+        masks = (min_point < points_in_view) & (points_in_view < max_point)
         return masks[:, :, 0] & masks[:, :, 1] & masks[:, :, 2]
 
     accumulator = accumulator_constructor(
@@ -200,8 +218,8 @@ def _render_intermediate_image(
 def _calc_warp_matrix(
     view_mat: xp.Array,
     translation: Vector,
-    dst_shape: tuple[int, int],
     src_shape: tuple[int, int],
+    dst_shape: tuple[int, int],
 ) -> xp.Array:
     align_mat = xp.asarray(
         [
@@ -227,19 +245,36 @@ def _warp(
     intermediate_image: Image,
     view_matrix: xp.Array,
     translation: Vector,
-    src_shape: tuple[int, int],
+    warped_shape: tuple[int, int],
     dst_shape: tuple[int, int],
+    sampling_method: xpe.SamplingMethod,
 ) -> Image:
-    warp_mat = _calc_warp_matrix(view_matrix, translation, dst_shape, src_shape)
-    match intermediate_image:
-        case MonoImage(l):
-            warped_l = xpi.affine_transform(l, xp.linalg.inv(warp_mat.T), dst_shape)
-            return MonoImage(l=warped_l)
-        case ColorImage(r, g, b):
-            warped_r = xpi.affine_transform(r, xp.linalg.inv(warp_mat.T), dst_shape)
-            warped_g = xpi.affine_transform(g, xp.linalg.inv(warp_mat.T), dst_shape)
-            warped_b = xpi.affine_transform(b, xp.linalg.inv(warp_mat.T), dst_shape)
-            return ColorImage(r=warped_r, g=warped_g, b=warped_b)
+    warp_mat = _calc_warp_matrix(view_matrix, translation, warped_shape, dst_shape)
+    return affine_image(
+        intermediate_image, xp.linalg.inv(warp_mat.T), dst_shape, method=sampling_method
+    )
+
+
+def _calc_spacing(camera: Camera, shape: tuple[int, int]) -> Vector:
+    return Vector(
+        i=camera.view_volume.width / shape[1],
+        j=camera.view_volume.height / shape[0],
+        k=0.0,
+    )
+
+
+def _calc_warped_shape(camera: Camera) -> tuple[int, int]:
+    return (
+        int(camera.screen_shape[0] / norm(camera.frame.orientation.j)),
+        int(camera.screen_shape[1] / norm(camera.frame.orientation.i)),
+    )
+
+
+def _apply_conversion(camera: Camera, conversion: Conversion) -> Camera:
+    return Camera(
+        frame=conversion(camera.frame),
+        view_volume=camera.view_volume,
+    )
 
 
 def create_renderer(
@@ -248,19 +283,32 @@ def create_renderer(
     accumulator_constructor: Callable[[tuple[int, int]], Composer],
     sampling_method: xpe.SamplingMethod,
 ) -> Renderer:
-    transform, inv_transform = _create_transformation(src=world_frame, dst=volume.frame)
+    to_volume = Transformation(src=world_frame, dst=volume.frame)
+    rotate_to_volume, inv_rotate_to_volume = _create_transformation(
+        src=Frame(
+            orientation=world_frame.orientation,
+            origin=volume.frame.origin,
+        ),
+        dst=volume.frame,
+    )
 
-    def _render(camera: Camera, shape: tuple[int, int]) -> RenderingResult:
-        viewing_direction = transform(camera.screen_orientation.k)
+    def _render(
+        camera: Camera, shape: tuple[int, int] | None = None
+    ) -> RenderingResult:
+        if shape is None:
+            shape = (int(camera.view_volume.height), int(camera.view_volume.width))
+
+        viewing_direction = rotate_to_volume(camera.screen_orientation).k
         perm, inv_perm = _create_permutation_from_principal_axis(viewing_direction)
-        inv_conversion = Composition(inv_perm, inv_transform)
+        inv_conversion = Composition(inv_perm, inv_rotate_to_volume)
 
-        perm_camera = camera.apply(transform).apply(perm)
+        perm_camera = _apply_conversion(_apply_conversion(camera, to_volume), perm)
         perm_volume = _permute_volume(volume, perm.order)
         perm_viewing_direction = perm(viewing_direction)
 
         shearing = _calc_shearing(perm_viewing_direction)
         translation = _calc_translation(shearing, perm_volume.data.shape)
+
         intermediate_image = _render_intermediate_image(
             perm_volume,
             shearing,
@@ -272,19 +320,16 @@ def create_renderer(
 
         result_image = _warp(
             intermediate_image,
-            perm_camera.view_matrix,
-            translation,
-            perm_camera.screen_shape,
-            shape,
+            view_matrix=perm_camera.view_matrix,
+            translation=translation,
+            warped_shape=_calc_warped_shape(camera),
+            dst_shape=shape,
+            sampling_method=sampling_method,
         )
-        result_spacing = Vector(
-            i=camera.view_volume.width / shape[1],
-            j=camera.view_volume.height / shape[0],
-            k=0.0,
-        )
+
         return RenderingResult(
             image=result_image,
-            spacing=result_spacing,
+            spacing=_calc_spacing(camera, shape),
             origin=camera.screen_origin,
             orientation=camera.screen_orientation,
         )

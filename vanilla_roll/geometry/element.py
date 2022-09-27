@@ -42,6 +42,29 @@ class Vector:
         k, j, i = (float(array[ai]) for ai in range(3))
         return cls(i=i, j=j, k=k)
 
+    def __add__(self, other: "Vector") -> "Vector":
+        return Vector(
+            i=self.i + other.i,
+            j=self.j + other.j,
+            k=self.k + other.k,
+        )
+
+    def __sub__(self, other: "Vector") -> "Vector":
+        return self + (-1.0 * other)
+
+    def __mul__(self, other: float) -> "Vector":
+        return Vector(
+            i=self.i * other,
+            j=self.j * other,
+            k=self.k * other,
+        )
+
+    def __rmul__(self, other: float) -> "Vector":
+        return self * other
+
+    def __matmul__(self, other: "Vector") -> float:
+        return self.i * other.i + self.j * other.j + self.k * other.k
+
 
 @dataclass(frozen=True)
 class Orientation:
