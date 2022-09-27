@@ -1,22 +1,28 @@
 [tool.poetry]
 name = "vanilla-roll"
 version = "0.1.0"
-description = ""
+description = "A simple array based volume renderer"
 authors = ["Masahiro Wada <argon.argon.argon@gmail.com>"]
 license = "Apache-2.0"
-include = ["alfort_dom/py.typed"]
+repository = "https://github.com/ar90n/vanilla_roll"
+readme = "README.md"
+keywords = ["array-api", "volume rendering"]
+include = ["vanilla_roll/py.typed"]
 
 [tool.poetry.dependencies]
 python = "~3.10"
-numpy = "^1.23.*"
-numba = "^0.55.2"
-scipy = "^1.8.1"
-scikit-spatial = "^6.4.0"
-pydantic = "^1.9.1"
-metaimageio = "^1.0.0"
-torch = "^1.8.*"
-nibabel = "^3.2.2"
-pydicom = "^2.3.0"
+numpy = "^1.23.0"
+
+metaimageio = {version = "^1.0.0", optional = true}
+torch = {version = "^1.8.0", optional = true}
+nibabel = {version = "^3.2.2", optional = true}
+pydicom = {version = "^2.3.0", optional = true}
+
+[tool.poetry.extras]
+torch = ["torch"]
+dicom = ["pydicom"]
+mha = ["metaimageio"]
+nifti = ["nibabel"]
 
 [tool.poetry.group.dev.dependencies]
 joblib = "^1.1.0"
