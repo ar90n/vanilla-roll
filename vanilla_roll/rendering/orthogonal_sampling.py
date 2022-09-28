@@ -98,14 +98,6 @@ def _calc_layers(camera: Camera, step: float) -> int:
     )
 
 
-def _calc_spacing(camera: Camera, shape: tuple[int, int], step: float) -> Vector:
-    return Vector(
-        i=camera.view_volume.width / shape[1],
-        j=camera.view_volume.height / shape[0],
-        k=step,
-    )
-
-
 def _compose_view_volume_voxels(
     view_volume_voxels: xp.Array,
     accumulator_constructor: Callable[[tuple[int, int]], Composer],
@@ -125,14 +117,14 @@ def create_renderer(
     accumulator_constructor: Callable[[tuple[int, int]], Composer],
     sampling_method: xpe.SamplingMethod,
 ) -> Renderer:
-    def _render(
-        camera: Camera, shape: tuple[int, int] | None = None
-    ) -> RenderingResult:
-        if shape is None:
-            shape = (
-                int(camera.view_volume.height / step),
-                int(camera.view_volume.width / step),
-            )
+    def _render(camera: Camera, spacing: float | None = None) -> RenderingResult:
+        if spacing is None:
+            spacing = step
+
+        shape = (
+            int(camera.view_volume.height / spacing),
+            int(camera.view_volume.width / spacing),
+        )
 
         view_volume_voxels = _extract_orthogonal_view_volume(
             volume,
@@ -147,7 +139,7 @@ def create_renderer(
 
         return RenderingResult(
             image=resize_image(composed_image, shape, method=sampling_method),
-            spacing=_calc_spacing(camera, shape, step),
+            spacing=Vector(i=spacing, j=spacing, k=step),
             origin=camera.screen_origin,
             orientation=camera.screen_orientation,
         )

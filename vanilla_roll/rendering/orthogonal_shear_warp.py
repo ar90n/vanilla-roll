@@ -255,14 +255,6 @@ def _warp(
     )
 
 
-def _calc_spacing(camera: Camera, shape: tuple[int, int]) -> Vector:
-    return Vector(
-        i=camera.view_volume.width / shape[1],
-        j=camera.view_volume.height / shape[0],
-        k=0.0,
-    )
-
-
 def _calc_warped_shape(camera: Camera) -> tuple[int, int]:
     return (
         int(camera.screen_shape[0] / norm(camera.frame.orientation.j)),
@@ -292,11 +284,14 @@ def create_renderer(
         dst=volume.frame,
     )
 
-    def _render(
-        camera: Camera, shape: tuple[int, int] | None = None
-    ) -> RenderingResult:
-        if shape is None:
-            shape = (int(camera.view_volume.height), int(camera.view_volume.width))
+    def _render(camera: Camera, spacing: float | None = None) -> RenderingResult:
+        if spacing is None:
+            spacing = 1.0
+
+        shape = (
+            int(camera.view_volume.height / spacing),
+            int(camera.view_volume.width / spacing),
+        )
 
         viewing_direction = rotate_to_volume(camera.screen_orientation).k
         perm, inv_perm = _create_permutation_from_principal_axis(viewing_direction)
@@ -329,7 +324,7 @@ def create_renderer(
 
         return RenderingResult(
             image=result_image,
-            spacing=_calc_spacing(camera, shape),
+            spacing=Vector(i=spacing, j=spacing, k=perm_volume.spacing.k),
             origin=camera.screen_origin,
             orientation=camera.screen_orientation,
         )

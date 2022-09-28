@@ -33,6 +33,6 @@ class Renderer(Protocol):
     def __call__(
         self,
         camera: Camera,
-        shape: tuple[int, int] | None = ...,
+        spacing: float | None = ...,
     ) -> RenderingResult:
         ...
