@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, cast
 import vanilla_roll.array_api as xp
 from vanilla_roll.anatomy_orientation import AnatomyOrientation
 from vanilla_roll.anatomy_orientation import parse as parse_anatomy_orientation
-from vanilla_roll.geometry.element import Frame, Orientation, Vector, as_array
+from vanilla_roll.geometry.element import Frame, Orientation, Vector
 from vanilla_roll.volume import Volume
 
 try:
@@ -36,15 +36,6 @@ class NIFTIIOParams:
     pass
 
 
-def _get_spacing(nii: SpatialImage) -> Vector:
-    zooms: tuple[float, float, float] = nii.header.get_zooms()  # type: ignore
-    return Vector(
-        i=zooms[0],
-        j=zooms[1],
-        k=zooms[2],
-    )
-
-
 def _get_origin(nii: SpatialImage) -> Vector:
     translates: npt.NDArray[np.float64] = nii.affine[:3, 3]
     return Vector(
@@ -57,9 +48,9 @@ def _get_origin(nii: SpatialImage) -> Vector:
 def _get_orientation(nii: SpatialImage) -> Orientation:
     orientation: npt.NDArray[np.float64] = nii.affine[:3, :3]
     return Orientation(
-        i=Vector.of_array(orientation[0]),
+        i=Vector.of_array(orientation[2]),
         j=Vector.of_array(orientation[1]),
-        k=Vector.of_array(orientation[2]),
+        k=Vector.of_array(orientation[0]),
     )
 
 
@@ -84,17 +75,11 @@ def read_nifti(path: str | Path, params: NIFTIIOParams = NIFTIIOParams()) -> Vol
     nii = _load_data(path)
 
     data = _get_data(nii)
-    spacing = _get_spacing(nii)
     origin = _get_origin(nii)
     orientation = _get_orientation(nii)
-    scaled_orientation = Orientation(
-        i=Vector.of_array(spacing.i * as_array(orientation.i)),
-        j=Vector.of_array(spacing.j * as_array(orientation.j)),
-        k=Vector.of_array(spacing.k * as_array(orientation.k)),
-    )
     anatomy_orientation = _get_anatomy_orientation(nii)
     return Volume(
         data,
-        frame=Frame(origin, scaled_orientation),
+        frame=Frame(origin, orientation),
         anatomy_orientation=anatomy_orientation,
     )
