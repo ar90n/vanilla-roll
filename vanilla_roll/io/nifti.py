@@ -39,9 +39,9 @@ class NIFTIIOParams:
 def _get_origin(nii: SpatialImage) -> Vector:
     translates: npt.NDArray[np.float64] = nii.affine[:3, 3]
     return Vector(
-        i=translates[0],
+        i=translates[2],
         j=translates[1],
-        k=translates[2],
+        k=translates[0],
     )
 
 
