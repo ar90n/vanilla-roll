@@ -1,6 +1,8 @@
 # render_rotation
 Rendering MRA data with horizontal or vertical camera rotation.
 
+![output](https://raw.githubusercontent.com/ar90n/vanilla-roll/assets/images/render_rotation_result.gif)
+
 ## Select rendering mode
 Select rendering mode by removing comment out.
 
