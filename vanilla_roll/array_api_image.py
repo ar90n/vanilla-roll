@@ -10,9 +10,11 @@ def affine_transform(
     *,
     method: xpe.SamplingMethod = "linear",
 ) -> xp.Array:
-    iss, jss = xp.meshgrid(xp.arange(output_shape[1]), xp.arange(output_shape[0]))
+    iss, jss = xp.meshgrid(
+        xp.arange(output_shape[1]), xp.arange(output_shape[0]), indexing="xy"
+    )
     output_coords = xp.astype(
-        xp.reshape(xp.stack([jss, iss, xp.ones_like(iss)], axis=2), (-1, 3)), xp.float64
+        xp.reshape(xp.stack([jss, iss, xp.ones_like(iss)], axis=2), (-1, 3)), xp.float32
     )
     input_coords = output_coords @ mat
     warped_pixels = xpe.sample(image, coordinates=input_coords[:, :2], method=method)

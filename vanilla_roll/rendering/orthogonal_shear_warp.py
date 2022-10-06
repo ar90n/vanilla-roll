@@ -136,19 +136,18 @@ def _create_direction_mat_in_world_frame(
 ) -> xp.Array:
     inv_orientation = inv_conversion(camera.frame.orientation)
 
-    k = as_array(normalize_vector(inv_orientation.k))
-    j = as_array(normalize_vector(inv_orientation.j))
-    i = as_array(normalize_vector(inv_orientation.i))
-
-    return xp.asarray([k, j, i]).T
+    k = normalize_vector(inv_orientation.k)
+    j = normalize_vector(inv_orientation.j)
+    i = normalize_vector(inv_orientation.i)
+    return xp.asarray([[k.k, j.k, i.k], [k.j, j.j, i.j], [k.i, j.i, i.i]])
 
 
 def _mesh_grid_from_origin(
     origin: Vector, shape: tuple[int, int]
 ) -> tuple[xp.Array, xp.Array]:
-    iss, jss = xp.meshgrid(xp.arange(shape[1]), xp.arange(shape[0]))
-    iss = xp.astype(iss, xp.float64) - origin.i
-    jss = xp.astype(jss, xp.float64) - origin.j
+    iss, jss = xp.meshgrid(xp.arange(shape[1]), xp.arange(shape[0]), indexing="xy")
+    iss = xp.astype(iss, xp.float32) - origin.i
+    jss = xp.astype(jss, xp.float32) - origin.j
     return jss, iss
 
 
@@ -193,7 +192,7 @@ def _render_intermediate_image(
     min_point, max_point = _create_viewv_volume_region(perm_camera)
 
     def _create_mask(idx: int, shape: tuple[int, int]) -> xp.Array:
-        grid_k = idx * xp.ones(shape, dtype=xp.float64) - perm_camera.frame.origin.k
+        grid_k = idx * xp.ones(shape, dtype=xp.float32) - perm_camera.frame.origin.k
         grid = xp.stack([grid_k, grid_j, grid_i], axis=2)
         grid_in_world = xp.reshape(
             inv_conversion(xp.reshape(grid, (-1, 3)).T).T, grid.shape

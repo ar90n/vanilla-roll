@@ -182,7 +182,7 @@ def _permutate_array(target: xp.Array, order: tuple[int, int, int]) -> xp.Array:
         target = xp.reshape(target, (3, 1))
     if target.ndim != 2 or target.shape[0] != 3:
         raise ValueError("Target array must be a 3xN matrix.")
-    return xp.asarray([target[i, :] for i in order])
+    return xp.stack([target[i, :] for i in order])
 
 
 class Permutation(Conversion):

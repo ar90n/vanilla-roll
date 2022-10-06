@@ -37,6 +37,9 @@ elif get_array_api_backend() == ArrayApiBackend.PYTORCH:
     ) -> Array:
         return torch.min(array, axis=axis, keepdims=keepdims)[0]
 
+    def permute_dims(array: Array, /, axes: tuple[int, ...]) -> Array:
+        return torch.permute(array, axes)
+
     def astype(array: Array, /, _dtype: dtype) -> Array:  # noqa: F405
         return array.to(_dtype)
 
