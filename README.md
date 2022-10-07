@@ -47,6 +47,7 @@ $ pip install vanilla-roll
 
 ## Example
 Code
+
 ```python
 import urllib.request
 from pathlib import Path
@@ -85,6 +86,7 @@ if __name__ == "__main__":
 ```
 
 Output
+
 ![output](https://raw.githubusercontent.com/ar90n/vanilla-roll/assets/images/simple.png)
 
 If you need more exmplaes, please check the [examples](https://github.com/ar90n/vanilla-roll/tree/main/examples).
