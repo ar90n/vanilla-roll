@@ -94,7 +94,7 @@ If you need more exmplaes, please check the [examples](https://github.com/ar90n/
 ## For development
 ### Install Poery plugins
 ```bash
-$ poetry plugin add "poethepoet[poetry_plugin]"
+$ poetry self add 'poethepoet[poetry_plugin]'
 ```
 
 ### Run tests
