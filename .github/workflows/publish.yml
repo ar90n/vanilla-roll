@@ -19,7 +19,6 @@ jobs:
       - name: Set up poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3.10
-          poetry self add poetry-version-plugin
       - name: Publish package
         run: |
           poetry publish --username=ar90n --password=${PYPI_PASSWORD} -n --build
