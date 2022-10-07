@@ -3,6 +3,12 @@ Rendering MRA data with horizontal or vertical camera rotation.
 
 ![output](https://raw.githubusercontent.com/ar90n/vanilla-roll/assets/images/render_rotation_result.gif)
 
+
+## Install vanilla-roll
+```bash
+$ pip install -r requirements.txt
+```
+
 ## Select rendering mode
 Select rendering mode by removing comment out.
 

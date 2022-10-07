@@ -1,1 +1,2 @@
 scikit-image
+vanilla-roll[nifti]
