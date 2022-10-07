@@ -49,11 +49,12 @@ jobs:
     - name: Install packages
       run: |
         curl -sSL https://install.python-poetry.org | python
-        poetry install --all-extras
+        poetry self add 'poethepoet[poetry_plugin]'
+        poetry poe install-all-extras
 
     - name: Type check
       run: |
-        poetry run pyright --warnings
+        poetry poe check
 
     - name: Tests
       run: |
