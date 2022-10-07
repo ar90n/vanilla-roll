@@ -44,6 +44,13 @@ So vanilla-roll is motivated to solve this problem.
 ```bash
 $ pip install vanilla-roll
 ```
+vanilla-roll supports following extras
+
+* torch
+* dicom
+* mha
+* nifti
+
 
 ## Example
 Code
