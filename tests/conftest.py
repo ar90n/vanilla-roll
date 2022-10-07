@@ -18,7 +18,7 @@ from vanilla_roll.geometry.element import Frame, Orientation, Vector, world_fram
 from vanilla_roll.volume import Volume
 
 
-@pytest.fixture(params=["numpy", "pytorch"])
+@pytest.fixture(params=["numpy", "pytorch", "cupy"])
 def array_api_backend(request: pytest.FixtureRequest):
     backend_name = str(request.param)  # type: ignore
 

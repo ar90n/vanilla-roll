@@ -1,5 +1,9 @@
+# type: ignore
+
 import itertools
 from typing import Any, Literal, Sequence
+
+import numpy.typing as npt
 
 import vanilla_roll.array_api as xp
 from vanilla_roll.backend import ArrayApiBackend, get_array_api_backend
@@ -88,55 +92,83 @@ def sample(
             return sample_nearest(array, coordinates=coordinates)
 
 
-if get_array_api_backend() == ArrayApiBackend.NUMPY:
-    import numpy.typing as npt
+def take(array: xp.Array, /, *, indices: xp.Array) -> xp.Array:
+    ...
 
-    def _get_raw_array(array: xp.Array) -> npt.NDArray[Any]:
+
+def put(array: xp.Array, /, *, indices: xp.Array, values: xp.Array) -> None:
+    ...
+
+
+def clip(
+    array: xp.Array,
+    /,
+    *,
+    a_min: xp.Array | Number | None,
+    a_max: xp.Array | Number | None = None,
+) -> xp.Array:
+    ...
+
+
+def asnumpy(array: xp.Array) -> npt.NDArray[Any]:
+    ...
+
+
+if get_array_api_backend() == ArrayApiBackend.NUMPY:
+
+    def _np_get_raw_array(array: xp.Array) -> npt.NDArray[Any]:
         raw_array = getattr(array, "_array", None)
         if raw_array is None:
             raise ValueError(f"Expected numpy array, got {type(array)}")
         return raw_array
 
-    def take(array: xp.Array, /, *, indices: xp.Array) -> xp.Array:
-        raw_array = _get_raw_array(array)
-        raw_indices = _get_raw_array(indices)
+    def _np_take(array: xp.Array, /, *, indices: xp.Array) -> xp.Array:
+        raw_array = _np_get_raw_array(array)
+        raw_indices = _np_get_raw_array(indices)
         return xp.asarray(raw_array.reshape(-1)[raw_indices])
 
-    def put(array: xp.Array, /, *, indices: xp.Array, values: xp.Array) -> None:
-        raw_array = _get_raw_array(array)
-        raw_indices = _get_raw_array(indices)
-        raw_values = _get_raw_array(values)
+    def _np_put(array: xp.Array, /, *, indices: xp.Array, values: xp.Array) -> None:
+        raw_array = _np_get_raw_array(array)
+        raw_indices = _np_get_raw_array(indices)
+        raw_values = _np_get_raw_array(values)
         raw_array.reshape(-1)[raw_indices] = raw_values
 
-    def clip(
+    def _np_clip(
         array: xp.Array,
         /,
         *,
         a_min: xp.Array | Number | None,
         a_max: xp.Array | Number | None = None,
     ) -> xp.Array:
-        raw_array = _get_raw_array(array)
-        raw_a_min = _get_raw_array(a_min) if isinstance(a_min, xp.Array) else a_min
-        raw_a_max = _get_raw_array(a_max) if isinstance(a_max, xp.Array) else a_max
+        raw_array = _np_get_raw_array(array)
+        raw_a_min = _np_get_raw_array(a_min) if isinstance(a_min, xp.Array) else a_min
+        raw_a_max = _np_get_raw_array(a_max) if isinstance(a_max, xp.Array) else a_max
         return xp.asarray(raw_array.clip(raw_a_min, raw_a_max))  # type: ignore
+
+    def _np_asnumpy(array: xp.Array) -> npt.NDArray[Any]:
+        return _np_get_raw_array(array)
+
+    locals().update(
+        {"take": _np_take, "put": _np_put, "clip": _np_clip, "asnumpy": _np_asnumpy}
+    )
 
 elif get_array_api_backend() == ArrayApiBackend.PYTORCH:
     from typing import cast
 
     import torch
 
-    def take(array: xp.Array, /, *, indices: xp.Array) -> xp.Array:
+    def _torch_take(array: xp.Array, /, *, indices: xp.Array) -> xp.Array:
         raw_array = cast(torch.Tensor, array)
         raw_indices = cast(torch.Tensor, indices)
         return xp.asarray(torch.take(raw_array, raw_indices))
 
-    def put(array: xp.Array, /, *, indices: xp.Array, values: xp.Array) -> None:
+    def _torch_put(array: xp.Array, /, *, indices: xp.Array, values: xp.Array) -> None:
         raw_array = cast(torch.Tensor, array)
         raw_indices = cast(torch.Tensor, indices)
         raw_values = cast(torch.Tensor, values)
         raw_array.put_(raw_indices, raw_values)
 
-    def clip(
+    def _torch_clip(
         array: xp.Array,
         /,
         *,
@@ -158,9 +190,64 @@ elif get_array_api_backend() == ArrayApiBackend.PYTORCH:
 
         return xp.asarray(torch.clamp(raw_array, min=raw_a_min, max=raw_a_max))
 
+    def _torch_asnumpy(array: xp.Array) -> npt.NDArray[Any]:
+        return array.to("cpu").detach().numpy()
+
+    locals().update(
+        {
+            "take": _torch_take,
+            "put": _torch_put,
+            "clip": _torch_clip,
+            "asnumpy": _torch_asnumpy,
+        }
+    )
+
+elif get_array_api_backend() == ArrayApiBackend.CUPY:
+    import cupy
+    import cupy.typing as cpt
+
+    def _cupy_get_raw_array(array: xp.Array) -> cpt.NDArray[Any]:
+        raw_array = getattr(array, "_array", None)
+        if raw_array is None:
+            raise ValueError(f"Expected numpy array, got {type(array)}")
+        return raw_array
+
+    def _cupy_take(array: xp.Array, /, *, indices: xp.Array) -> xp.Array:
+        raw_array = _cupy_get_raw_array(array)
+        raw_indices = _cupy_get_raw_array(indices)
+        return xp.asarray(raw_array.reshape(-1)[raw_indices])
+
+    def _cupy_put(array: xp.Array, /, *, indices: xp.Array, values: xp.Array) -> None:
+        raw_array = _cupy_get_raw_array(array)
+        raw_indices = _cupy_get_raw_array(indices)
+        raw_values = _cupy_get_raw_array(values)
+        raw_array.reshape(-1)[raw_indices] = raw_values
+
+    def _cupy_clip(
+        array: xp.Array,
+        /,
+        *,
+        a_min: xp.Array | Number | None,
+        a_max: xp.Array | Number | None = None,
+    ) -> xp.Array:
+        raw_array = _cupy_get_raw_array(array)
+        raw_a_min = _cupy_get_raw_array(a_min) if isinstance(a_min, xp.Array) else a_min
+        raw_a_max = _cupy_get_raw_array(a_max) if isinstance(a_max, xp.Array) else a_max
+        return xp.asarray(raw_array.clip(raw_a_min, raw_a_max))  # type: ignore
+
+    def _cupy_asnumpy(array: xp.Array) -> npt.NDArray[Any]:
+        return cupy.asnumpy(array._array)
+
+    locals().update(
+        {
+            "take": _cupy_take,
+            "put": _cupy_put,
+            "clip": _cupy_clip,
+            "asnumpy": _cupy_asnumpy,
+        }
+    )
 else:
     raise OSError("No array API backend found")
-
 
 __all__ = [
     "take",
