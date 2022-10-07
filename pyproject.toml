@@ -70,4 +70,5 @@ source = "git-tag"
 [tool.poe.tasks]
 test = "pytest"
 check = { shell = "pre-commit run -a && pyright" }
+install-all-extras = "poetry install --all-extras"
 install-pre-commit = "pre-commit install"

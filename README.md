@@ -97,6 +97,11 @@ If you need more exmplaes, please check the [examples](https://github.com/ar90n/
 $ poetry self add 'poethepoet[poetry_plugin]'
 ```
 
+### Install all extra packages
+```bash
+$ poetry poe install-all-extras
+```
+
 ### Run tests
 ```bash
 $ poetry poe test
