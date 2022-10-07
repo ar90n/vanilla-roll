@@ -16,28 +16,28 @@ But I think that the installation process is not easy.
 So vanilla-roll is motivated to solve this problem.
 
 ## Features
-[ ] IO
-  [x] MRA
-  [x] NIFTI
-  [x] DICOM
-  [ ] NRRD
-[ ] Rendering Algorithm
-  [x] Sampling
-  [x] Shear-Warp
-  [ ] Raycast
-[ ] Rendering Mode
-  [x] MIP
-  [x] MinP
-  [x] Average
-  [ ] VolumeRendering
-    [x] Ambient
-    [ ] Shading
-[ ] Backend
-  [x] numpy
-  [x] pytorch
-  [ ] cupy
-  [ ] jax
-  [ ] numbda
+- [ ] IO
+  - [x] MRA
+  - [x] NIFTI
+  - [x] DICOM
+  - [ ] NRRD
+- [ ] Rendering Algorithm
+  - [x] Sampling
+  - [x] Shear-Warp
+  - [ ] Raycast
+- [ ] Rendering Mode
+  - [x] MIP
+  - [x] MinP
+  - [x] Average
+  - [ ] VolumeRendering
+      - [x] Ambient
+      - [ ] Shading
+- [ ] Backend
+  - [x] numpy
+  - [x] pytorch
+  - [ ] cupy
+  - [ ] jax
+  - [ ] numbda
 
 
 ## Installation
