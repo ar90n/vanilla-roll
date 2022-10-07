@@ -18,8 +18,7 @@ jobs:
           python-version: "3.10"
       - name: Set up poetry
         run: |
-          curl -o /tmp/install-poetry.py -sSL https://install.python-poetry.org
-          python /tmp/install-poetry.py --yes --preview
+          curl -sSL https://install.python-poetry.org | python
           poetry self add poetry-version-plugin
       - name: Publish package
         run: |
