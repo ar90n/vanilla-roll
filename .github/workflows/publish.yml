@@ -18,7 +18,8 @@ jobs:
           python-version: "3.10"
       - name: Set up poetry
         run: |
-          curl -sSL https://install.python-poetry.org | python3.10
+          curl -sSL https://install.python-poetry.org | python
+          poetry self add "poetry-dynamic-versioning[plugin]"
       - name: Publish package
         run: |
           poetry publish --username=ar90n --password=${PYPI_PASSWORD} -n --build
