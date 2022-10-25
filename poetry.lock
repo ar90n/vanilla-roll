@@ -181,23 +181,6 @@ tomli = {version = "*", optional = true, markers = "python_full_version <= \"3.1
 toml = ["tomli"]
 
 [[package]]
-name = "cupy"
-version = "11.2.0"
-description = "CuPy: NumPy & SciPy for GPU"
-category = "main"
-optional = true
-python-versions = ">=3.7"
-
-[package.dependencies]
-fastrlock = ">=0.5"
-numpy = ">=1.20,<1.26"
-
-[package.extras]
-all = ["scipy (>=1.6,<1.12)", "Cython (>=0.29.22,<3)", "optuna (>=2.0)"]
-stylecheck = ["autopep8 (==1.5.5)", "flake8 (==3.8.4)", "pbr (==5.5.1)", "pycodestyle (==2.6.0)", "mypy (==0.950)", "types-setuptools (==57.4.14)"]
-test = ["pytest (>=6.2)", "hypothesis (>=6.37.2,<6.55.0)"]
-
-[[package]]
 name = "debugpy"
 version = "1.6.3"
 description = "An implementation of the Debug Adapter Protocol for Python"
@@ -269,14 +252,6 @@ python-versions = "*"
 
 [package.extras]
 tests = ["rich", "littleutils", "pytest", "asttokens"]
-
-[[package]]
-name = "fastrlock"
-version = "0.8"
-description = "Fast, re-entrant optimistic lock implemented in Cython"
-category = "main"
-optional = true
-python-versions = "*"
 
 [[package]]
 name = "filelock"
@@ -1164,8 +1139,6 @@ optional = false
 python-versions = "*"
 
 [extras]
-all-cpu = ["torch"]
-all-io = []
 cupy = ["cupy"]
 dicom = ["pydicom"]
 mha = ["metaimageio"]
@@ -1175,7 +1148,7 @@ torch = ["torch"]
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.10"
-content-hash = "b3b55dda17d5a255683400fb231c38a93972b5fef3ede66b647d1dd8135c9414"
+content-hash = "e61f2100c004d28f852c112adb010cc4c84c324bc19074bacbb2fbbfb336ab00"
 
 [metadata.files]
 appnope = []
@@ -1193,7 +1166,6 @@ colorama = []
 commitizen = []
 conventional-commit = []
 coverage = []
-cupy = []
 debugpy = []
 decli = []
 decorator = []
@@ -1202,7 +1174,6 @@ entrypoints = []
 exceptiongroup = []
 execnet = []
 executing = []
-fastrlock = []
 filelock = []
 flake8 = []
 identify = []
