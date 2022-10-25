@@ -17,7 +17,6 @@ metaimageio = {version = "^1.0.0", optional = true}
 torch = {version = "^1.8.0", optional = true}
 nibabel = {version = "^4.0.0", optional = true}
 pydicom = {version = "^2.3.0", optional = true}
-cupy = {version = "^11.2.0", optional = true}
 
 [tool.poetry.extras]
 torch = ["torch"]
@@ -25,8 +24,6 @@ cupy = ["cupy"]
 dicom = ["pydicom"]
 mha = ["metaimageio"]
 nifti = ["nibabel"]
-all-io = ["dicom", "mha", "nifti"]
-all-cpu = ["all-io", "torch"]
 
 [tool.poetry.group.dev.dependencies]
 joblib = "^1.1.0"
@@ -77,5 +74,5 @@ style = "semver"
 test = "pytest"
 check = { shell = "pre-commit run -a && pyright" }
 install-all-extras = "poetry install --all-extras"
-install-all-cpu = "poetry install --extras all-cpu"
+install-all-cpu = "poetry install --extras 'torch dicom mha nifti'"
 install-pre-commit = "pre-commit install"
