@@ -25,6 +25,8 @@ cupy = ["cupy"]
 dicom = ["pydicom"]
 mha = ["metaimageio"]
 nifti = ["nibabel"]
+all-io = ["dicom", "mha", "nifti"]
+all-cpu = ["all-io", "torch"]
 
 [tool.poetry.group.dev.dependencies]
 joblib = "^1.1.0"
@@ -75,4 +77,5 @@ style = "semver"
 test = "pytest"
 check = { shell = "pre-commit run -a && pyright" }
 install-all-extras = "poetry install --all-extras"
+install-all-cpu = "poetry install --extras all-cpu"
 install-pre-commit = "pre-commit install"
