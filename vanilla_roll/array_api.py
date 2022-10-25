@@ -43,5 +43,9 @@ elif get_array_api_backend() == ArrayApiBackend.PYTORCH:
     def astype(array: Array, /, _dtype: dtype) -> Array:  # noqa: F405
         return array.to(_dtype)
 
+elif get_array_api_backend() == ArrayApiBackend.CUPY:
+    # from cupy.array_api import *  # noqa: F401, F403
+    from cupy.array_api import *  # noqa
+    from cupy.array_api._array_object import Array  # pyright: reportUnusedImport=false
 else:
     raise OSError("No array API backend found")
