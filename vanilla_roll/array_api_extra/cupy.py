@@ -2,7 +2,7 @@
 # pyright: reportUnknownMemberType=false
 # pyright: reportUnknownArgumentType=false
 
-from typing import Any
+from typing import Any, cast
 
 import cupy
 import cupy.typing as cpt
@@ -47,4 +47,5 @@ def clip(
 
 
 def asnumpy(array: xp.Array) -> npt.NDArray[Any]:
-    return cupy.asnumpy(array._array)  # pyright: ignore [reportPrivateUsage]
+    numpy_array = cupy.asnumpy(_get_raw_array(array))
+    return cast(npt.NDArray[Any], numpy_array)
