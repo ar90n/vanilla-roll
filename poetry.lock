@@ -133,7 +133,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7
 
 [[package]]
 name = "commitizen"
-version = "2.35.0"
+version = "2.36.0"
 description = "Python commitizen client tool"
 category = "dev"
 optional = false
@@ -181,6 +181,23 @@ tomli = {version = "*", optional = true, markers = "python_full_version <= \"3.1
 toml = ["tomli"]
 
 [[package]]
+name = "cupy"
+version = "11.2.0"
+description = "CuPy: NumPy & SciPy for GPU"
+category = "main"
+optional = true
+python-versions = ">=3.7"
+
+[package.dependencies]
+fastrlock = ">=0.5"
+numpy = ">=1.20,<1.26"
+
+[package.extras]
+all = ["scipy (>=1.6,<1.12)", "Cython (>=0.29.22,<3)", "optuna (>=2.0)"]
+stylecheck = ["autopep8 (==1.5.5)", "flake8 (==3.8.4)", "pbr (==5.5.1)", "pycodestyle (==2.6.0)", "mypy (==0.950)", "types-setuptools (==57.4.14)"]
+test = ["pytest (>=6.2)", "hypothesis (>=6.37.2,<6.55.0)"]
+
+[[package]]
 name = "debugpy"
 version = "1.6.3"
 description = "An implementation of the Debug Adapter Protocol for Python"
@@ -222,7 +239,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "exceptiongroup"
-version = "1.0.0rc9"
+version = "1.0.0"
 description = "Backport of PEP 654 (exception groups)"
 category = "dev"
 optional = false
@@ -254,6 +271,14 @@ python-versions = "*"
 tests = ["rich", "littleutils", "pytest", "asttokens"]
 
 [[package]]
+name = "fastrlock"
+version = "0.8"
+description = "Fast, re-entrant optimistic lock implemented in Cython"
+category = "main"
+optional = true
+python-versions = "*"
+
+[[package]]
 name = "filelock"
 version = "3.8.0"
 description = "A platform independent file lock."
@@ -280,7 +305,7 @@ pyflakes = ">=2.5.0,<2.6.0"
 
 [[package]]
 name = "identify"
-version = "2.5.7"
+version = "2.5.8"
 description = "File identification library for Python"
 category = "dev"
 optional = false
@@ -336,7 +361,7 @@ python-versions = "*"
 
 [[package]]
 name = "ipykernel"
-version = "6.16.1"
+version = "6.16.2"
 description = "IPython Kernel for Jupyter"
 category = "dev"
 optional = false
@@ -447,7 +472,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "jupyter-client"
-version = "7.4.3"
+version = "7.4.4"
 description = "Jupyter protocol implementation and client libraries"
 category = "dev"
 optional = false
@@ -822,7 +847,7 @@ python-versions = "*"
 
 [[package]]
 name = "pyright"
-version = "1.1.276"
+version = "1.1.277"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
@@ -1050,15 +1075,15 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "tomlkit"
-version = "0.11.5"
+version = "0.11.6"
 description = "Style preserving TOML library"
 category = "dev"
 optional = false
-python-versions = ">=3.6,<4.0"
+python-versions = ">=3.6"
 
 [[package]]
 name = "torch"
-version = "1.12.1+cpu"
+version = "1.13.0+cpu"
 description = "Tensors and Dynamic neural networks in Python with strong GPU acceleration"
 category = "main"
 optional = true
@@ -1066,6 +1091,9 @@ python-versions = ">=3.7.0"
 
 [package.dependencies]
 typing-extensions = "*"
+
+[package.extras]
+opt-einsum = ["opt-einsum (>=3.3)"]
 
 [package.source]
 type = "legacy"
@@ -1115,19 +1143,19 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
 name = "virtualenv"
-version = "20.16.5"
+version = "20.16.6"
 description = "Virtual Python Environment builder"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
-distlib = ">=0.3.5,<1"
+distlib = ">=0.3.6,<1"
 filelock = ">=3.4.1,<4"
 platformdirs = ">=2.4,<3"
 
 [package.extras]
-docs = ["proselint (>=0.13)", "sphinx (>=5.1.1)", "sphinx-argparse (>=0.3.1)", "sphinx-rtd-theme (>=1)", "towncrier (>=21.9)"]
+docs = ["proselint (>=0.13)", "sphinx (>=5.3)", "sphinx-argparse (>=0.3.2)", "sphinx-rtd-theme (>=1)", "towncrier (>=22.8)"]
 testing = ["coverage (>=6.2)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7)", "packaging (>=21.3)", "pytest (>=7.0.1)", "pytest-env (>=0.6.2)", "pytest-freezegun (>=0.4.2)", "pytest-mock (>=3.6.1)", "pytest-randomly (>=3.10.3)", "pytest-timeout (>=2.1)"]
 
 [[package]]
@@ -1148,7 +1176,7 @@ torch = ["torch"]
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.10"
-content-hash = "e61f2100c004d28f852c112adb010cc4c84c324bc19074bacbb2fbbfb336ab00"
+content-hash = "527dff748198d9ca53a43c80131ddc8064ebbab49f21a0d20d6364d1af3d256f"
 
 [metadata.files]
 appnope = []
@@ -1166,6 +1194,7 @@ colorama = []
 commitizen = []
 conventional-commit = []
 coverage = []
+cupy = []
 debugpy = []
 decli = []
 decorator = []
@@ -1174,6 +1203,7 @@ entrypoints = []
 exceptiongroup = []
 execnet = []
 executing = []
+fastrlock = []
 filelock = []
 flake8 = []
 identify = []
@@ -1240,14 +1270,15 @@ toml = []
 tomli = []
 tomlkit = []
 torch = [
-    {file = "torch-1.12.1+cpu-cp310-cp310-linux_x86_64.whl", hash = "sha256:0105f0af872fbc8b66ae2ec7ff69674a3b3d0d70bfa5017d65a840577428f6a7"},
-    {file = "torch-1.12.1+cpu-cp310-cp310-win_amd64.whl", hash = "sha256:4466dae89c7476718be8171b0d286cdd0f7f92a805f0d6bc5c6f9463477ea53c"},
-    {file = "torch-1.12.1+cpu-cp37-cp37m-linux_x86_64.whl", hash = "sha256:42d21b8b73f97e2e3735b8529b27c900c3c5f4c9443c2a1ebc18e7f78f8d5096"},
-    {file = "torch-1.12.1+cpu-cp37-cp37m-win_amd64.whl", hash = "sha256:169308925a6d7c56467b28c17f1c3f9a178672072f1a4e6e9512d5cf380624c3"},
-    {file = "torch-1.12.1+cpu-cp38-cp38-linux_x86_64.whl", hash = "sha256:42b7d500629c9e99d875cb204a1a1f5b3f65f6743823b21de9b4cba5962300d8"},
-    {file = "torch-1.12.1+cpu-cp38-cp38-win_amd64.whl", hash = "sha256:ea90068d81b797ebba683a81a52e9bee8527af63fd80ba03c2debf326baa2e7b"},
-    {file = "torch-1.12.1+cpu-cp39-cp39-linux_x86_64.whl", hash = "sha256:870bc47b880fb0488ea5b665bf76fc8df76a55a5cd48917501bf4597e1af6b2e"},
-    {file = "torch-1.12.1+cpu-cp39-cp39-win_amd64.whl", hash = "sha256:86259ad190338860d98552568f3baef0b075cb6da8ff24f76598fa5730bacf06"},
+    {file = "torch-1.13.0+cpu-cp310-cp310-linux_x86_64.whl", hash = "sha256:b37a1a701fa00bcb9d508ebc509c3137df5f1cb9287548ee674893ac9561fbae"},
+    {file = "torch-1.13.0+cpu-cp310-cp310-win_amd64.whl", hash = "sha256:6fe6a7b8c7fcb4ba5f9d20854ecd4d6a8644c5cb12ff9b72d1523c6dcf543606"},
+    {file = "torch-1.13.0+cpu-cp311-cp311-linux_x86_64.whl", hash = "sha256:c48cf9d76c017cd5f6a015fee1c082a57236f44e7c289060ea207a50ca9e66f1"},
+    {file = "torch-1.13.0+cpu-cp37-cp37m-linux_x86_64.whl", hash = "sha256:c55ca981cf3f1ce8db0fc95327fe2b8092386425d83d6ad02fe1b8d1bfae5eab"},
+    {file = "torch-1.13.0+cpu-cp37-cp37m-win_amd64.whl", hash = "sha256:40616584c171a2562480b788da29e6ae0a35e1aae2e5dc55bd2cc9bbedc847dd"},
+    {file = "torch-1.13.0+cpu-cp38-cp38-linux_x86_64.whl", hash = "sha256:4adafbcc43d2e7fa0b661a3c36c85f0ed35f69ab5fc88f4b245ad55174776183"},
+    {file = "torch-1.13.0+cpu-cp38-cp38-win_amd64.whl", hash = "sha256:0a46a7170bbdca7eb71a595bd499d3bc4b5862aa756120c55383111ceeffe09e"},
+    {file = "torch-1.13.0+cpu-cp39-cp39-linux_x86_64.whl", hash = "sha256:c7531242830606713a32a3c0047e19ec7d718c971a8a9482de7f3c38a05a97a7"},
+    {file = "torch-1.13.0+cpu-cp39-cp39-win_amd64.whl", hash = "sha256:8df18dacc5b3b5739fa86b133329abb2f63932104e5a0e57ce01133dff754eb7"},
 ]
 tornado = []
 traitlets = []
