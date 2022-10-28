@@ -35,7 +35,7 @@ So vanilla-roll is motivated to solve this problem.
 - [ ] Backend
   - [x] numpy
   - [x] pytorch
-  - [ ] cupy
+  - [x] cupy
   - [ ] jax
   - [ ] numbda
 
