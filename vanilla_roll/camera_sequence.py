@@ -92,7 +92,7 @@ def create_circular(
 
     radius = target.diagonal_length / 2.0
     ip = radius * as_array(normalize_vector(initial))
-    initial_position = xp.asarray([ip[0], ip[1], ip[2], 1.0])
+    initial_position = xp.concat([ip, xp.asarray([1.0])])
     initial_position = inv_rot @ initial_position
 
     for _ in range(n):

@@ -2,10 +2,10 @@ import urllib.request
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-import numpy as np
 import skimage.io
 
 import vanilla_roll as vr
+import vanilla_roll.array_api_extra as xpe
 from vanilla_roll.rendering.transfer_function import Preset, get_preset
 
 # from A high-resolution 7-Tesla fMRI dataset from complex natural stimulation with an audio movie
@@ -22,7 +22,7 @@ def fetch_mra_volume() -> vr.volume.Volume:
 
 def save_result(ret: vr.rendering.types.RenderingResult, path: str):
     img_array = vr.rendering.convert_image_to_array(ret.image)
-    skimage.io.imsave(path, np.from_dlpack(img_array))  # type: ignore
+    skimage.io.imsave(path, xpe.asnumpy(img_array))  # type: ignore
 
 
 def main():
