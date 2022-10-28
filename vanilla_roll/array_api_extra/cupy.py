@@ -1,7 +1,7 @@
 # pyright: reportUnknownVariableType=false
 # pyright: reportUnknownMemberType=false
 # pyright: reportUnknownArgumentType=false
-
+# pyright: reportGeneralTypeIssues=false
 from typing import Any
 
 import cupy
@@ -47,4 +47,6 @@ def clip(
 
 
 def asnumpy(array: xp.Array) -> npt.NDArray[Any]:
-    return cupy.asnumpy(_get_raw_array(array))
+    return cupy.asnumpy(
+        _get_raw_array(array)
+    )  # pyright: ignore [reportGeneralTypeIssues]

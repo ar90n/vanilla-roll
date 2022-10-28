@@ -1,12 +1,61 @@
 # pyright: reportUnknownMemberType=false
 
-from typing import Any
+from operator import add, matmul, mul, sub
+from typing import Any, Callable
 
 import pytest
 
 import vanilla_roll.array_api as xp
-from vanilla_roll.geometry.conversion import Transformation
-from vanilla_roll.geometry.element import Frame, Orientation, Vector, as_array
+from vanilla_roll.geometry.conversion import Permutation, Transformation
+from vanilla_roll.geometry.element import (
+    Frame,
+    Orientation,
+    Vector,
+    as_array,
+    to_homogeneous,
+)
+from vanilla_roll.geometry.linalg import normalize_vector
+
+
+def test_create_vector():
+    v = Vector(1.0, 2.0, 3.0)
+    assert v.i == 1.0
+    assert v.j == 2.0
+    assert v.k == 3.0
+
+
+def test_create_orientation():
+    o = Orientation(Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0))
+    assert o.i == Vector(i=1.0, j=0.0, k=0.0)
+    assert o.j == Vector(i=0.0, j=1.0, k=0.0)
+    assert o.k == Vector(i=0.0, j=0.0, k=1.0)
+
+
+def test_create_frame():
+    o = Orientation(Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0))
+    v = Vector(1.0, 2.0, 3.0)
+    f = Frame(v, o)
+    assert f.origin == v
+    assert f.orientation == o
+
+
+@pytest.mark.parametrize(
+    "lhs, rhs, op, expected",
+    [
+        (Vector(-1.0, 2.0, 3.0), Vector(1.0, 2.0, 3.0), add, Vector(0.0, 4.0, 6.0)),
+        (Vector(-1.0, 2.0, 3.0), Vector(1.0, 2.0, 3.0), sub, Vector(-2.0, 0.0, 0.0)),
+        (Vector(-1.0, 2.0, 3.0), 2.0, mul, Vector(-2.0, 4.0, 6.0)),
+        (2.0, Vector(-1.0, 2.0, 3.0), mul, Vector(-2.0, 4.0, 6.0)),
+        (Vector(-1.0, 2.0, 3.0), Vector(1.0, 2.0, 3.0), matmul, 12.0),
+    ],
+)
+def test_op_vector(
+    lhs: Vector | float,
+    rhs: Vector | float,
+    op: Callable[[Any, Any], Any],
+    expected: Vector | float,
+):
+    assert op(lhs, rhs) == expected
 
 
 @pytest.mark.usefixtures("array_api_backend")
@@ -40,19 +89,73 @@ def test_vector_create_fail(x: float, y: float, z: float):
     "obj, expected",
     [
         (
+            Vector(i=1.0, j=2.0, k=3.0),
+            [3.0, 2.0, 1.0],
+        ),
+        (
             Orientation(
-                Vector(1.0, 0.0, 0.0),
-                Vector(0.0, 1.0, 0.0),
-                Vector(0.0, 0.0, 1.0),
+                i=Vector(i=1.0, j=0.0, k=0.0),
+                j=Vector(i=0.0, j=1.0, k=0.0),
+                k=Vector(i=0.0, j=0.0, k=1.0),
             ),
             [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
         ),
+        (
+            Frame(
+                Vector(i=1.0, j=2.0, k=3.0),
+                Orientation(
+                    i=Vector(i=1.0, j=0.0, k=0.0),
+                    j=Vector(i=0.0, j=1.0, k=0.0),
+                    k=Vector(i=0.0, j=0.0, k=1.0),
+                ),
+            ),
+            [
+                [1.0, 0.0, 0.0, 3.0],
+                [0.0, 1.0, 0.0, 2.0],
+                [0.0, 0.0, 1.0, 1.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+        ),
     ],
 )
-def test_orientation_to_array(
-    obj: Orientation, expected: list[list[float]], helpers: Any
+def test_as_array(
+    obj: Vector | Orientation | Frame,
+    expected: list[float] | list[list[float]],
+    helpers: Any,
 ):
     actual_array = as_array(obj)
+    expected_array = xp.asarray(expected)
+    assert actual_array.shape == expected_array.shape
+
+    actual_array = xp.reshape(actual_array, (-1,))
+    expected_array = xp.reshape(expected_array, (-1,))
+    assert helpers.approx_equal(actual_array, expected_array)
+
+
+@pytest.mark.usefixtures("array_api_backend")
+@pytest.mark.parametrize(
+    "src, expected",
+    [
+        (
+            [1.0, 2.0, 3.0],
+            [1.0, 2.0, 3.0, 1.0],
+        ),
+        (
+            [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]],
+            [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0], [1.0, 1.0]],
+        ),
+        (
+            [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
+            [[1.0, 2.0, 3.0, 1.0], [4.0, 5.0, 6.0, 1.0]],
+        ),
+    ],
+)
+def test_to_homegeneous(
+    src: list[float] | list[list[float]],
+    expected: list[float] | list[list[float]],
+    helpers: Any,
+):
+    actual_array = to_homogeneous(xp.asarray(src))
     expected_array = xp.asarray(expected)
     assert actual_array.shape == expected_array.shape
 
@@ -146,3 +249,55 @@ def test_transform(
     expected = xp.asarray(expected)
     assert actual.shape == expected.shape
     assert helpers.approx_equal(actual, expected)
+
+
+@pytest.mark.usefixtures("array_api_backend")
+@pytest.mark.parametrize(
+    "order, target, expected",
+    [
+        ((1, 2, 0), Vector(1.0, 2.0, 3.0), Vector(3.0, 1.0, 2.0)),
+        (
+            (1, 2, 0),
+            Orientation(
+                Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0)
+            ),
+            Orientation(
+                i=Vector(0.0, 1.0, 0.0),
+                j=Vector(0.0, 0.0, 1.0),
+                k=Vector(1.0, 0.0, 0.0),
+            ),
+        ),
+        (
+            (1, 2, 0),
+            Frame(
+                Vector(1.0, 2.0, 3.0),
+                Orientation(
+                    Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0)
+                ),
+            ),
+            Frame(
+                Vector(i=3.0, j=1.0, k=2.0),
+                Orientation(
+                    i=Vector(i=0.0, j=1.0, k=0.0),
+                    j=Vector(i=0.0, j=0.0, k=1.0),
+                    k=Vector(i=1.0, j=0.0, k=0.0),
+                ),
+            ),
+        ),
+    ],
+)
+def test_permutation(
+    order: tuple[int, int, int],
+    target: Vector | Orientation,
+    expected: Vector | Orientation,
+):
+    perm = Permutation(order)
+    assert expected == perm(target)
+    assert order == perm.order
+
+
+def test_normalize_vector():
+    nv = normalize_vector(Vector(1.0, 2.0, 3.0))
+    assert pytest.approx(0.26726, 1e-5) == nv.i
+    assert pytest.approx(0.53452, 1e-5) == nv.j
+    assert pytest.approx(0.80178, 1e-5) == nv.k
