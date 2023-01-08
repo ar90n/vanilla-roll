@@ -10,7 +10,6 @@ from vanilla_roll.geometry.linalg import norm
 
 @dataclass(frozen=True)
 class Volume:
-
     data: xp.Array
     frame: Frame
     anatomy_orientation: AnatomyOrientation | None = None
