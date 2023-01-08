@@ -28,7 +28,7 @@ nifti = ["nibabel"]
 
 [tool.poetry.group.dev.dependencies]
 joblib = "^1.1.0"
-poethepoet = "^0.16.0"
+poethepoet = "^0.17.0"
 pyright = "^1.1.238"
 pytest = "^7.1.1"
 pytest-cov = "^4.0.0"
