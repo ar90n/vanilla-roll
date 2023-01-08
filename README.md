@@ -128,7 +128,7 @@ $ poetry poe check
 [download-url]: https://pypi.org/project/vanilla-roll/
 [version-shield]: https://img.shields.io/pypi/v/vanilla-roll?style=flat
 [version-url]: https://pypi.org/project/vanilla-roll/
-[build-shiled]: https://img.shields.io/github/workflow/status/ar90n/vanilla-roll/CI%20testing/main
+[build-shiled]: https://img.shields.io/github/actions/workflow/status/ar90n/vanilla-roll/ci-testing.yml
 [build-url]: https://github.com/ar90n/vanilla-roll/actions/workflows/ci-testing.yml
 [contributors-shield]: https://img.shields.io/github/contributors/ar90n/vanilla-roll.svg?style=flat
 [contributors-url]: https://github.com/ar90n/vanilla-roll/graphs/contributors
