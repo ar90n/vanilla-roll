@@ -15,7 +15,7 @@ numpy = "^1.23.0"
 
 metaimageio = {version = "^1.0.0", optional = true}
 torch = {version = "^1.8.0", optional = true}
-nibabel = {version = "^4.0.0", optional = true}
+nibabel = {version = "^5.0.0", optional = true}
 pydicom = {version = "^2.3.0", optional = true}
 cupy = {version = "^11.2.0", optional = true}
 

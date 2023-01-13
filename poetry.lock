@@ -953,31 +953,33 @@ files = [
 
 [[package]]
 name = "nibabel"
-version = "4.0.2"
+version = "5.0.0"
 description = "Access a multitude of neuroimaging data formats"
 category = "main"
 optional = true
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "nibabel-4.0.2-py3-none-any.whl", hash = "sha256:c4fe76348aa865f8300beaaf2a69d31624964c861853ef80c06e33d5f244413c"},
-    {file = "nibabel-4.0.2.tar.gz", hash = "sha256:45c49b5349351b45f6c045a91aa02b4f0d367686ff3284632ef95ac65b930786"},
+    {file = "nibabel-5.0.0-py3-none-any.whl", hash = "sha256:f8a4d08890cd95a7351c169e4ce69133b1292da24c6d0b42175c502f2534a21c"},
+    {file = "nibabel-5.0.0.tar.gz", hash = "sha256:e910ce6f3374e79fa49847abfb9db99d435844ae7781375aa952d6a8bd047ade"},
 ]
 
 [package.dependencies]
-numpy = ">=1.17"
-packaging = ">=17.0"
+numpy = ">=1.19"
+packaging = ">=17"
 setuptools = "*"
 
 [package.extras]
-all = ["coverage", "flake8", "gitpython", "h5py", "matplotlib (>=1.5.3)", "numpydoc", "pillow", "pydicom (>=1.0.0)", "pytest (!=5.3.4)", "pytest-cov", "pytest-doctestplus", "pyzstd (>=0.14.3)", "scipy", "sphinx (>=0.3,<3)", "texext", "twine"]
-dev = ["gitpython", "twine"]
+all = ["nibabel[dev,dicomfs,doc,minc2,spm,style,test,zstd]"]
+dev = ["gitpython", "nibabel[style]", "twine"]
 dicom = ["pydicom (>=1.0.0)"]
-dicomfs = ["pillow", "pydicom (>=1.0.0)"]
-doc = ["matplotlib (>=1.5.3)", "numpydoc", "sphinx (>=0.3,<3)", "texext"]
+dicomfs = ["nibabel[dicom]", "pillow"]
+doc = ["matplotlib (>=1.5.3)", "numpydoc", "sphinx (>=5.3,<6.0)", "texext", "tomli"]
+doctest = ["nibabel[doc,test]"]
 minc2 = ["h5py"]
 spm = ["scipy"]
-style = ["flake8"]
-test = ["coverage", "pytest (!=5.3.4)", "pytest-cov", "pytest-doctestplus"]
+style = ["blue", "flake8", "isort"]
+test = ["coverage", "pytest (!=5.3.4)", "pytest-cov", "pytest-doctestplus", "pytest-httpserver", "pytest-xdist"]
+typing = ["mypy", "pydicom", "pytest", "types-pillow", "types-setuptools"]
 zstd = ["pyzstd (>=0.14.3)"]
 
 [[package]]
@@ -2009,4 +2011,4 @@ torch = ["torch"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.10"
-content-hash = "0e3785efb898d4a14830d39ddcd124950f625d6eb1f59e13666582faa1e7ded1"
+content-hash = "4a9a31bd26316a3e9f6ff4091da7c9c4a561a0877bd464b39223fea119cbcf87"
