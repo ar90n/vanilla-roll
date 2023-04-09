@@ -41,7 +41,7 @@ def make_transfer_function(
 
     def _f(x: xp.Array) -> Result:
         absorption = xp.zeros_like(x)
-        for (beg, end) in zip(opacity_control_points, opacity_control_points[1:]):
+        for beg, end in zip(opacity_control_points, opacity_control_points[1:]):
             mask = xp.logical_and(beg.intensity <= x, x < end.intensity)
             ratio = (x[mask] - beg.intensity) / (end.intensity - beg.intensity)
             absorption[mask] = ratio * (end.opacity - beg.opacity) + beg.opacity
@@ -49,7 +49,7 @@ def make_transfer_function(
         r = xp.zeros_like(x)
         g = xp.zeros_like(x)
         b = xp.zeros_like(x)
-        for (beg, end) in zip(color_control_points, color_control_points[1:]):
+        for beg, end in zip(color_control_points, color_control_points[1:]):
             mask = xp.logical_and(beg.intensity <= x, x < end.intensity)
             ratio = (x[mask] - beg.intensity) / (end.intensity - beg.intensity)
             r[mask] = ratio * (end.r - beg.r) + beg.r
