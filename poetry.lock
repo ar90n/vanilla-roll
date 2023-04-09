@@ -1390,14 +1390,14 @@ files = [
 
 [[package]]
 name = "pydicom"
-version = "2.3.0"
+version = "2.3.1"
 description = "A pure Python package for reading and writing DICOM data"
 category = "main"
 optional = true
 python-versions = ">=3.6.1"
 files = [
-    {file = "pydicom-2.3.0-py3-none-any.whl", hash = "sha256:8ff31e077cc51d19ac3b8ca988ac486099cdebfaf885989079fdc7c75068cdd8"},
-    {file = "pydicom-2.3.0.tar.gz", hash = "sha256:dbfa081c9ad9ac8ff8a8efbd71784104db9eecf02fd775f7d7773f2183f89386"},
+    {file = "pydicom-2.3.1-py3-none-any.whl", hash = "sha256:b00bacdabc1f8a18b61a08bb6cd0f41c419446531638c895a708c22a35d69cfe"},
+    {file = "pydicom-2.3.1.tar.gz", hash = "sha256:655db29c21cb333a4f9dfffdeaa80995b1d3b89e98b66a16f5cc886e5b338028"},
 ]
 
 [package.extras]
