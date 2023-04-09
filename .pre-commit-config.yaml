@@ -70,7 +70,6 @@ repos:
     hooks:
       - id: blacken-docs
         args: [ --line-length=120, --skip-errors ]
-        additional_dependencies: [ black==21.10b0 ]
 
   - repo: https://github.com/PyCQA/flake8
     rev: 6.0.0
