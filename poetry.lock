@@ -375,13 +375,13 @@ toml = ["tomli"]
 
 [[package]]
 name = "cupy"
-version = "11.6.0"
+version = "12.0.0"
 description = "CuPy: NumPy & SciPy for GPU"
 category = "main"
 optional = true
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "cupy-11.6.0.tar.gz", hash = "sha256:53dbb840072bb32d4bfbaa6bfa072365a30c98b1fcd1f43e48969071ad98f1a7"},
+    {file = "cupy-12.0.0.tar.gz", hash = "sha256:61ddbbef73d50d606bd5087570645f3c91ec9176c2566784c1d486d6a3404545"},
 ]
 
 [package.dependencies]
@@ -2018,4 +2018,4 @@ torch = ["torch"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.10"
-content-hash = "c4e0f730177376ef3f1cd92d9b76879fa4ece970e7ca6aae839d5f9b6209bb8c"
+content-hash = "2fc319da12aab879247e55e94dee261da8964c4daa10066179b293905f656c1c"
