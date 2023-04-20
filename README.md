@@ -37,7 +37,7 @@ So vanilla-roll is motivated to solve this problem.
   - [x] pytorch
   - [x] cupy
   - [ ] jax
-  - [ ] numbda
+  - [ ] numba
 
 
 ## Installation
