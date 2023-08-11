@@ -375,13 +375,13 @@ toml = ["tomli"]
 
 [[package]]
 name = "cupy"
-version = "12.1.0"
+version = "12.2.0"
 description = "CuPy: NumPy & SciPy for GPU"
 category = "main"
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "cupy-12.1.0.tar.gz", hash = "sha256:f6d31989cdb2d96581da12822e28b102f29e254427195c2017eac327869b7320"},
+    {file = "cupy-12.2.0.tar.gz", hash = "sha256:f95ffd0afeacb617b048fe028ede07b97dc9e95aca1610a022b1f3d20a9a027e"},
 ]
 
 [package.dependencies]
@@ -390,7 +390,7 @@ numpy = ">=1.20,<1.27"
 
 [package.extras]
 all = ["Cython (>=0.29.22,<3)", "optuna (>=2.0)", "scipy (>=1.6,<1.13)"]
-stylecheck = ["autopep8 (==1.5.5)", "flake8 (==3.8.4)", "mypy (==0.950)", "pbr (==5.5.1)", "pycodestyle (==2.6.0)", "types-setuptools (==57.4.14)"]
+stylecheck = ["autopep8 (==1.5.5)", "flake8 (==3.8.4)", "mypy (==1.4.1)", "pbr (==5.5.1)", "pycodestyle (==2.6.0)", "types-setuptools (==57.4.14)"]
 test = ["hypothesis (>=6.37.2,<6.55.0)", "pytest (>=7.2)"]
 
 [[package]]
