@@ -266,14 +266,14 @@ typing = ["mypy (>=0.990)"]
 
 [[package]]
 name = "commitizen"
-version = "3.7.0"
+version = "3.8.1"
 description = "Python commitizen client tool"
 category = "dev"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "commitizen-3.7.0-py3-none-any.whl", hash = "sha256:473e703f4d3cfa14250ee197a7a47acb02c064d590f351eb94338385427e53e3"},
-    {file = "commitizen-3.7.0.tar.gz", hash = "sha256:c2c83817981f539f0c92a5f16a5d82e41954fdc886ea651b2f5a07f078c8bbaf"},
+    {file = "commitizen-3.8.1-py3-none-any.whl", hash = "sha256:5dcb699687956fe947f8c29412201b18a8ab3db04f4b5afcab19443f4e456ce1"},
+    {file = "commitizen-3.8.1.tar.gz", hash = "sha256:808fba8bc03ce9b4f397a1de918c8356a7e2e6dd0a329ee0a49ea647a190d7e3"},
 ]
 
 [package.dependencies]
