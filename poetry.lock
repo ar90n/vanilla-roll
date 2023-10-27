@@ -942,14 +942,14 @@ files = [
 
 [[package]]
 name = "metaimageio"
-version = "1.2.0"
+version = "1.2.2"
 description = "Support for reading and writing images in MetaIO file format."
 category = "main"
 optional = true
 python-versions = ">=3.6"
 files = [
-    {file = "metaimageio-1.2.0-py3-none-any.whl", hash = "sha256:d899c755ed6a860757a269719e83d557c62e6a832fd285f97451a05fe6ca97bb"},
-    {file = "metaimageio-1.2.0.tar.gz", hash = "sha256:193cfd5b410f4933eefe932f9af35290c860e48e4a9fee2cfbe34af3fd6ed839"},
+    {file = "metaimageio-1.2.2-py3-none-any.whl", hash = "sha256:55d867c47079f903d6fe4ae883282271e6f896874b9113780c280fd5d0686909"},
+    {file = "metaimageio-1.2.2.tar.gz", hash = "sha256:95190b356df0600548d2ca2c61d80fe21fc65cddb01dadb25e4cfb747a185c93"},
 ]
 
 [package.dependencies]
