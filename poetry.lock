@@ -979,33 +979,32 @@ files = [
 
 [[package]]
 name = "nibabel"
-version = "5.0.0"
+version = "5.2.1"
 description = "Access a multitude of neuroimaging data formats"
 category = "main"
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "nibabel-5.0.0-py3-none-any.whl", hash = "sha256:f8a4d08890cd95a7351c169e4ce69133b1292da24c6d0b42175c502f2534a21c"},
-    {file = "nibabel-5.0.0.tar.gz", hash = "sha256:e910ce6f3374e79fa49847abfb9db99d435844ae7781375aa952d6a8bd047ade"},
+    {file = "nibabel-5.2.1-py3-none-any.whl", hash = "sha256:2cbbc22985f7f9d39d050df47249771dfb8d48447f5e7a993177e4cabfe047f0"},
+    {file = "nibabel-5.2.1.tar.gz", hash = "sha256:b6c80b2e728e4bc2b65f1142d9b8d2287a9102a8bf8477e115ef0d8334559975"},
 ]
 
 [package.dependencies]
-numpy = ">=1.19"
+numpy = ">=1.20"
 packaging = ">=17"
-setuptools = "*"
 
 [package.extras]
-all = ["nibabel[dev,dicomfs,doc,minc2,spm,style,test,zstd]"]
-dev = ["gitpython", "nibabel[style]", "twine"]
+all = ["nibabel[dicomfs,minc2,spm,zstd]"]
+dev = ["tox"]
 dicom = ["pydicom (>=1.0.0)"]
 dicomfs = ["nibabel[dicom]", "pillow"]
-doc = ["matplotlib (>=1.5.3)", "numpydoc", "sphinx (>=5.3,<6.0)", "texext", "tomli"]
-doctest = ["nibabel[doc,test]"]
+doc = ["matplotlib (>=1.5.3)", "numpydoc", "sphinx", "texext", "tomli"]
+doctest = ["tox"]
 minc2 = ["h5py"]
 spm = ["scipy"]
-style = ["blue", "flake8", "isort"]
-test = ["coverage", "pytest (!=5.3.4)", "pytest-cov", "pytest-doctestplus", "pytest-httpserver", "pytest-xdist"]
-typing = ["mypy", "pydicom", "pytest", "types-pillow", "types-setuptools"]
+style = ["tox"]
+test = ["pytest", "pytest-cov", "pytest-doctestplus", "pytest-httpserver", "pytest-xdist"]
+typing = ["tox"]
 zstd = ["pyzstd (>=0.14.3)"]
 
 [[package]]
@@ -1797,7 +1796,7 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 name = "setuptools"
 version = "65.5.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
