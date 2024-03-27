@@ -1483,14 +1483,14 @@ files = [
 
 [[package]]
 name = "pyright"
-version = "1.1.277"
+version = "1.1.356"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.277-py3-none-any.whl", hash = "sha256:de7e2f533771d94e5db722cbdb0db9eafe250395b00cf2baa1ac969343ec23b0"},
-    {file = "pyright-1.1.277.tar.gz", hash = "sha256:38975508f2a3ef846db16466c659a37ad18c741113bc46bcdf6a7250b550cdc8"},
+    {file = "pyright-1.1.356-py3-none-any.whl", hash = "sha256:a101b0f375f93d7082f9046cfaa7ba15b7cf8e1939ace45e984c351f6e8feb99"},
+    {file = "pyright-1.1.356.tar.gz", hash = "sha256:f05b8b29d06b96ed4a0885dad5a31d9dff691ca12b2f658249f583d5f2754021"},
 ]
 
 [package.dependencies]
