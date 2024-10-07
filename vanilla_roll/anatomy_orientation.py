@@ -14,7 +14,7 @@ class Axial(Enum):
 
     @classmethod
     def of(cls, s: Literal["Superior"] | Literal["Inferior"]) -> Axial:
-        """construct from string.
+        """Construct from string.
 
         >>> Axial.of("Superior")
         <Axial.SUPERIOR: 'Superior'>
@@ -22,7 +22,7 @@ class Axial(Enum):
         return cls(s)
 
     def inverse(self) -> Axial:
-        """get inverse.
+        """Get inverse.
 
         >>> Axial.SUPERIOR.inverse()
         <Axial.INFERIOR: 'Inferior'>
@@ -36,7 +36,7 @@ class Sagittal(Enum):
 
     @classmethod
     def of(cls, s: Literal["Anterior"] | Literal["Posterior"]) -> Sagittal:
-        """construct from string.
+        """Construct from string.
 
         >>> Sagittal.of("Anterior")
         <Sagittal.ANTERIOR: 'Anterior'>
@@ -57,7 +57,7 @@ class Coronal(Enum):
 
     @classmethod
     def of(cls, s: Literal["Right"] | Literal["Left"]) -> Coronal:
-        """construct from string.
+        """Construct from string.
 
         >>> Coronal.of("Right")
         <Coronal.RIGHT: 'Right'>
