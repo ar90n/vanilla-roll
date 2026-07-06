@@ -22,11 +22,9 @@ class Composer(Protocol):
         *,
         mask: xp.Array | None = None,
         slice: Slice2d | None = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
-    def compose(self) -> Image:
-        ...
+    def compose(self) -> Image: ...
 
 
 class AccMax(Composer):
