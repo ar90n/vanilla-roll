@@ -34,5 +34,4 @@ class Renderer(Protocol):
         self,
         camera: Camera,
         spacing: float | None = ...,
-    ) -> RenderingResult:
-        ...
+    ) -> RenderingResult: ...
