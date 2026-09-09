@@ -1415,14 +1415,14 @@ files = [
 
 [[package]]
 name = "pydicom"
-version = "2.4.4"
+version = "2.4.5"
 description = "A pure Python package for reading and writing DICOM data"
 category = "main"
 optional = true
-python-versions = ">=3.7"
+python-versions = ">=3.10"
 files = [
-    {file = "pydicom-2.4.4-py3-none-any.whl", hash = "sha256:f9f8e19b78525be57aa6384484298833e4d06ac1d6226c79459131ddb0bd7c42"},
-    {file = "pydicom-2.4.4.tar.gz", hash = "sha256:90b4801d851ce65be3df520e16bbfa3d6c767cf2a3a3b1c18f6780e6b670b87a"},
+    {file = "pydicom-2.4.5-py3-none-any.whl", hash = "sha256:35a594cc8ebae8dd40b1f632cd7c9f08ecaa147cb9305a9f9fbca2c03f5ccc93"},
+    {file = "pydicom-2.4.5.tar.gz", hash = "sha256:ba2077bd76cb49e05fe51c3e1e0b2d77218f50c6c231120b443d29b38ea6b7a8"},
 ]
 
 [package.extras]
