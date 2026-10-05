@@ -6,9 +6,9 @@ import builtins
 
 import torch.linalg as linalg  # noqa: F401
 from torch import *  # noqa: F403
+from torch import argsort as _argsort
 from torch import permute  # noqa: F401
 from torch import uint8  # noqa: F401
-from torch import argsort as _argsort
 from torch import bool, dot, float32, float64, int8, int16, int32, int64  # noqa: F401
 from torch import max as _max
 from torch import min as _min

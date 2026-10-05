@@ -5,8 +5,7 @@ from typing import Any, Iterable, Protocol
 class ValidationRule(Protocol):
     """ValidationRule is a protocol that defines a validation rule."""
 
-    def __call__(self, name: str, other: Any) -> ValueError | None:
-        ...
+    def __call__(self, name: str, other: Any) -> ValueError | None: ...
 
 
 class IsGreaterThan:
